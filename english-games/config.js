@@ -1,0 +1,13 @@
+/*
+ * PENGATURAN APLIKASI
+ * --------------------------------------------------------------
+ * SHEET_API_URL: tempel URL Web App Google Apps Script di sini
+ * (berakhiran /exec). Lihat README.md bagian "Hubungkan ke Google
+ * Spreadsheet". Jika dikosongkan, skor tetap tersimpan di perangkat
+ * (browser) dan URL juga bisa diisi lewat tombol ⚙️ Pengaturan.
+ */
+window.APP_CONFIG = {
+  SHEET_API_URL: '',
+  APP_TITLE: 'English Fun Games',
+  SCHOOL_NAME: ''
+};

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>English Fun Games</title>
+  <meta name="description" content="Game belajar Bahasa Inggris untuk anak SD: TTS, Word Search, Susun Kata, Match Picture, dan Susun Kalimat.">
+  <meta name="theme-color" content="#6c5ce7">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar hidden" id="topbar">
+    <button class="icon-btn" id="btn-home" title="Menu utama" aria-label="Menu utama">🏠</button>
+    <div class="player-chip" id="player-chip"></div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="btn-sound" title="Suara" aria-label="Suara">🔊</button>
+      <button class="icon-btn" id="btn-board" title="Papan Prestasi" aria-label="Papan Prestasi">🏆</button>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- LAYAR MASUK -->
+    <section class="screen" id="screen-start">
+      <div class="card start-card">
+        <div class="logo">🎮</div>
+        <h1 id="app-title">English Fun Games</h1>
+        <p class="subtitle">Belajar Bahasa Inggris sambil bermain! <span id="school-name"></span></p>
+        <form id="form-start" autocomplete="off">
+          <label for="inp-name">Siapa namamu?</label>
+          <input id="inp-name" type="text" maxlength="30" placeholder="Tulis namamu di sini" required>
+          <label for="inp-class">Kelas</label>
+          <select id="inp-class">
+            <option value="">— pilih kelas (opsional) —</option>
+            <option>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option><option>6</option>
+          </select>
+          <p class="form-error" id="start-error"></p>
+          <button type="submit" class="btn btn-primary btn-big">Ayo Mulai! 🚀</button>
+        </form>
+        <div class="start-links">
+          <button class="link-btn" id="btn-board-start">🏆 Papan Prestasi</button>
+          <button class="link-btn" id="btn-settings">⚙️ Pengaturan</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PILIH GAME -->
+    <section class="screen hidden" id="screen-menu">
+      <h2 class="screen-title" id="menu-greet">Halo!</h2>
+      <p class="screen-sub">Pilih permainan yang ingin kamu mainkan:</p>
+      <div class="grid-cards" id="game-list"></div>
+    </section>
+
+    <!-- PILIH TEMA -->
+    <section class="screen hidden" id="screen-theme">
+      <button class="back-btn" data-back="menu">← Kembali</button>
+      <h2 class="screen-title" id="theme-title">Pilih Tema</h2>
+      <div class="grid-cards small" id="theme-list"></div>
+    </section>
+
+    <!-- PILIH LEVEL -->
+    <section class="screen hidden" id="screen-level">
+      <button class="back-btn" data-back="theme">← Kembali</button>
+      <h2 class="screen-title" id="level-title">Pilih Level</h2>
+      <div class="level-list" id="level-list"></div>
+    </section>
+
+    <!-- GAME -->
+    <section class="screen hidden" id="screen-game">
+      <div class="game-head">
+        <button class="back-btn" id="btn-quit">✖ Keluar</button>
+        <div class="game-name" id="g-title"></div>
+      </div>
+      <div class="hud">
+        <div class="hud-item">📝 <span id="g-progress">0/0</span></div>
+        <div class="hud-item">⭐ <span id="g-score">0</span></div>
+        <div class="hud-item">⏱️ <span id="g-timer">0:00</span></div>
+      </div>
+      <div class="progress"><div class="progress-bar" id="g-bar"></div></div>
+      <div id="game-area"></div>
+    </section>
+
+    <!-- HASIL -->
+    <section class="screen hidden" id="screen-result">
+      <div class="card result-card" id="result-box"></div>
+    </section>
+
+    <!-- PAPAN PRESTASI -->
+    <section class="screen hidden" id="screen-board">
+      <button class="back-btn" id="btn-board-back">← Kembali</button>
+      <h2 class="screen-title">🏆 Papan Prestasi</h2>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="rank">Peringkat</button>
+        <button class="tab" data-tab="badges">Lencanaku</button>
+        <button class="tab" data-tab="history">Riwayat</button>
+      </div>
+      <div class="tab-panel" id="tab-rank">
+        <div class="filters">
+          <select id="f-game"></select>
+          <select id="f-theme"></select>
+          <select id="f-level"></select>
+        </div>
+        <p class="board-note" id="board-note"></p>
+        <div id="board-list"></div>
+      </div>
+      <div class="tab-panel hidden" id="tab-badges"></div>
+      <div class="tab-panel hidden" id="tab-history"></div>
+    </section>
+  </main>
+
+  <!-- MODAL PENGATURAN -->
+  <div class="modal hidden" id="modal-settings" role="dialog" aria-modal="true" aria-labelledby="set-title">
+    <div class="card modal-card">
+      <h3 id="set-title">⚙️ Pengaturan Google Spreadsheet</h3>
+      <p class="small-text">Tempel URL Web App Google Apps Script (berakhiran <code>/exec</code>). Panduan lengkap ada di file README.md.</p>
+      <input id="inp-api" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+      <p class="small-text" id="api-status"></p>
+      <div class="modal-actions">
+        <button class="btn" id="btn-api-test">Tes Koneksi</button>
+        <button class="btn btn-primary" id="btn-api-save">Simpan</button>
+        <button class="btn btn-ghost" id="btn-api-close">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL KONFIRMASI -->
+  <div class="modal hidden" id="modal-confirm" role="dialog" aria-modal="true">
+    <div class="card modal-card">
+      <h3 id="confirm-text">Yakin?</h3>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="confirm-no">Tidak</button>
+        <button class="btn btn-danger" id="confirm-yes">Ya</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
