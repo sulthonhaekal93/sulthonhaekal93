@@ -25,6 +25,12 @@
   --coral-deep:#C94A37;
   --plum:#6C5CE0;
   --plum-deep:#4B3DB5;
+  --rose:#D9487F;
+  --rose-deep:#A12F5C;
+  --leaf:#2E9A4E;
+  --leaf-deep:#1E6E36;
+  --sky:#2F7FD8;
+  --sky-deep:#1D59A3;
   --good:#23A047;
   --good-soft:#DDF5E3;
   --bad:#E5484D;
@@ -34,6 +40,7 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{min-height:100%}
 body{
   margin:0;
@@ -68,6 +75,9 @@ button{font:inherit;color:inherit}
 .brand .ar{font-size:.95rem;margin-left:6px;opacity:.85;font-weight:500}
 .bar-btn{background:var(--teal-deep);border:0;color:var(--paper);border-radius:12px;padding:6px 12px;font-weight:700;cursor:pointer;min-height:40px}
 .bar-btn[hidden]{display:none}
+.star-chip[hidden]{display:none}
+#starChip+.bar-btn{margin-left:auto}
+#starChip:not([hidden])+.bar-btn{margin-left:0}
 .star-chip{margin-left:auto;background:var(--sun);color:var(--ink);border-radius:999px;padding:4px 12px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 main{max-width:780px;margin:0 auto;padding-top:22px;display:flex;flex-direction:column;gap:22px}
@@ -266,6 +276,52 @@ main{max-width:780px;margin:0 auto;padding-top:22px;display:flex;flex-direction:
 .confetti{position:fixed;top:-12px;width:10px;height:14px;z-index:30;pointer-events:none;animation:fall 1.6s ease-in forwards}
 @keyframes fall{to{transform:translate(var(--dx),105vh) rotate(720deg)}}
 
+
+/* ---------- pemain, nilai, papan prestasi ---------- */
+.panel{background:var(--paper);border:3px solid var(--ink);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.start-form label{font-weight:800}
+.start-form input,.start-form select,.filters select{font:inherit;font-size:1.05rem;color:var(--ink);background:var(--paper);border:3px solid var(--line);border-radius:14px;padding:10px 12px;min-height:48px;width:100%}
+.start-form input:focus,.start-form select:focus,.filters select:focus{border-color:var(--teal);outline:none}
+.form-error{color:var(--bad);font-weight:700;min-height:1.2em}
+.start-links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.greet{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.greet h1{font-size:clamp(1.7rem,6vw,2.3rem);font-weight:800;color:var(--teal-deep)}
+.greet .ar{font-size:1.3rem;color:var(--coral-deep)}
+.greet .sub{color:var(--ink-soft);font-weight:600}
+.howto ul{margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.r-sub{color:var(--ink-soft);font-weight:600}
+.r-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:460px}
+.r-stats div{background:var(--ground);border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center}
+.r-stats b{font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.2}
+.r-stats span{font-size:.8rem;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.save-status{font-size:.95rem;color:var(--ink-soft)}
+.new-badges{width:100%;display:flex;flex-direction:column;gap:8px}
+.new-badges h3{font-size:1.15rem}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,150px),1fr));gap:10px}
+.badge{background:var(--ground);border:2px dashed var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;opacity:.6}
+.badge.on{opacity:1;background:#FFF6DC;border:2px solid var(--sun-deep)}
+.badge span{font-size:2rem;line-height:1.2}
+.badge small{font-size:.8rem;color:var(--ink-soft);line-height:1.3}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{font-weight:800;border:3px solid var(--ink);background:var(--paper);border-radius:999px;padding:6px 16px;cursor:pointer;min-height:44px}
+.tab.on{background:var(--ink);color:var(--paper)}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px}
+.filters label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.9rem}
+.note{font-size:.92rem;color:var(--ink-soft)}
+.empty{text-align:center;color:var(--ink-soft);padding:16px 0}
+.table-wrap{overflow-x:auto}
+table.board{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+table.board th{text-align:left;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);padding:6px 8px;border-bottom:2px solid var(--line)}
+table.board td{padding:8px;border-bottom:1px solid var(--line)}
+table.board tr.me td{background:#FFF6DC;font-weight:700}
+.pic-people{display:flex;flex-direction:column;align-items:center;line-height:1.2;text-align:center}
+.pic-people b{font-size:1rem}
+.big .pic-people b{font-size:1.5rem}
+.card .pic-people b{font-size:.78rem}
+.card .pic-people .pic-emoji{font-size:2rem}
+.b-target .pic-people{flex-direction:row;gap:6px}
+.b-target .pic-people .pic-emoji{font-size:2.2rem}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
@@ -276,7 +332,8 @@ main{max-width:780px;margin:0 auto;padding-top:22px;display:flex;flex-direction:
   <div class="bar-in">
     <button class="bar-btn" id="backBtn" hidden>← Kembali</button>
     <button class="brand" id="brandBtn">Arabku Ceria <span class="ar" lang="ar">عَرَبِيَّتِي</span></button>
-    <span class="star-chip" id="starChip" title="Jumlah bintang">⭐ 0</span>
+    <span class="star-chip" id="starChip" title="Jumlah bintang" hidden>⭐ 0</span>
+    <button class="bar-btn" id="boardBtn" aria-label="Papan Prestasi">🏆</button>
     <button class="bar-btn" id="soundBtn" aria-label="Suara">🔊</button>
   </div>
 </header>
@@ -284,6 +341,16 @@ main{max-width:780px;margin:0 auto;padding-top:22px;display:flex;flex-direction:
 <div class="toast" id="toast" hidden></div>
 
 <script>
+/* ================= PENGATURAN =================
+ * SHEET_API_URL: tempel URL Web App Google Apps Script (berakhiran /exec).
+ * Lihat README.md bagian "Hubungkan ke Google Spreadsheet". Jika dikosongkan,
+ * skor tetap tersimpan di perangkat, dan URL bisa diisi lewat ⚙️ Pengaturan.
+ */
+const APP_CONFIG = {
+  SHEET_API_URL: '',
+  SCHOOL_NAME: ''
+};
+
 /* ================= DATA KOSAKATA ================= */
 const TOPICS = {
   benda:{
@@ -344,6 +411,65 @@ const TOPICS = {
       {ar:'عَشَرَةٌ',lt:'\'asyaratun',id:'sepuluh',n:10,d:'١٠'}
     ]
   },
+  tubuh:{
+    name:'Anggota Tubuh', ar:'أَعْضَاءُ الْجِسْمِ', icon:'🧍', kind:'emoji',
+    color:'var(--rose)', deep:'var(--rose-deep)',
+    items:[
+      {ar:'وَجْهٌ',lt:'wajhun',id:'wajah',e:'😊'},
+      {ar:'عَيْنٌ',lt:'\'ainun',id:'mata',e:'👁️'},
+      {ar:'أُذُنٌ',lt:'udzunun',id:'telinga',e:'👂'},
+      {ar:'أَنْفٌ',lt:'anfun',id:'hidung',e:'👃'},
+      {ar:'فَمٌ',lt:'famun',id:'mulut',e:'👄'},
+      {ar:'سِنٌّ',lt:'sinnun',id:'gigi',e:'🦷'},
+      {ar:'لِسَانٌ',lt:'lisaanun',id:'lidah',e:'👅'},
+      {ar:'شَعْرٌ',lt:'sya\'run',id:'rambut',e:'💇'},
+      {ar:'يَدٌ',lt:'yadun',id:'tangan',e:'✋'},
+      {ar:'إِصْبَعٌ',lt:'ishba\'un',id:'jari',e:'☝️'},
+      {ar:'ذِرَاعٌ',lt:'dziraa\'un',id:'lengan',e:'💪'},
+      {ar:'رِجْلٌ',lt:'rijlun',id:'kaki',e:'🦵'},
+      {ar:'قَلْبٌ',lt:'qalbun',id:'jantung',e:'❤️'}
+    ]
+  },
+  hewan:{
+    name:'Hewan', ar:'حَيَوَانَاتٌ', icon:'🦁', kind:'emoji',
+    color:'var(--leaf)', deep:'var(--leaf-deep)',
+    items:[
+      {ar:'أَسَدٌ',lt:'asadun',id:'singa',e:'🦁'},
+      {ar:'فِيلٌ',lt:'fiilun',id:'gajah',e:'🐘'},
+      {ar:'جَمَلٌ',lt:'jamalun',id:'unta',e:'🐫'},
+      {ar:'حِصَانٌ',lt:'hishaanun',id:'kuda',e:'🐴'},
+      {ar:'بَقَرَةٌ',lt:'baqaratun',id:'sapi',e:'🐄'},
+      {ar:'خَرُوفٌ',lt:'kharuufun',id:'domba',e:'🐑'},
+      {ar:'أَرْنَبٌ',lt:'arnabun',id:'kelinci',e:'🐰'},
+      {ar:'قِرْدٌ',lt:'qirdun',id:'monyet',e:'🐒'},
+      {ar:'سَمَكَةٌ',lt:'samakatun',id:'ikan',e:'🐟'},
+      {ar:'طَائِرٌ',lt:'thaa\'irun',id:'burung',e:'🐦'},
+      {ar:'دَجَاجَةٌ',lt:'dajaajatun',id:'ayam',e:'🐔'},
+      {ar:'بَطَّةٌ',lt:'baththatun',id:'bebek',e:'🦆'},
+      {ar:'نَمْلَةٌ',lt:'namlatun',id:'semut',e:'🐜'},
+      {ar:'فَرَاشَةٌ',lt:'faraasyatun',id:'kupu-kupu',e:'🦋'},
+      {ar:'سُلَحْفَاةٌ',lt:'sulahfaatun',id:'kura-kura',e:'🐢'}
+    ]
+  },
+  keluarga:{
+    name:'Keluargaku', ar:'أُسْرَتِي', icon:'👨‍👩‍👧', kind:'people',
+    color:'var(--sky)', deep:'var(--sky-deep)',
+    items:[
+      {ar:'أُسْرَةٌ',lt:'usratun',id:'keluarga',e:'👨‍👩‍👧‍👦'},
+      {ar:'أَبٌ',lt:'abun',id:'ayah',e:'👨'},
+      {ar:'أُمٌّ',lt:'ummun',id:'ibu',e:'👩'},
+      {ar:'أَخٌ',lt:'akhun',id:'saudara laki-laki',e:'👦'},
+      {ar:'أُخْتٌ',lt:'ukhtun',id:'saudara perempuan',e:'👧'},
+      {ar:'اِبْنٌ',lt:'ibnun',id:'anak laki-laki',e:'🧒'},
+      {ar:'بِنْتٌ',lt:'bintun',id:'anak perempuan',e:'👧'},
+      {ar:'جَدٌّ',lt:'jaddun',id:'kakek',e:'👴'},
+      {ar:'جَدَّةٌ',lt:'jaddatun',id:'nenek',e:'👵'},
+      {ar:'عَمٌّ',lt:'\'ammun',id:'paman (saudara ayah)',e:'🧔'},
+      {ar:'عَمَّةٌ',lt:'\'ammatun',id:'bibi (saudara ayah)',e:'👩‍🦱'},
+      {ar:'خَالٌ',lt:'khaalun',id:'paman (saudara ibu)',e:'🧔'},
+      {ar:'خَالَةٌ',lt:'khaalatun',id:'bibi (saudara ibu)',e:'👩‍🦰'}
+    ]
+  },
   sambung:{
     name:'Kata Sambung', ar:'حُرُوفُ الْعَطْفِ', icon:'🔗', kind:'conj',
     color:'var(--plum)', deep:'var(--plum-deep)',
@@ -363,45 +489,71 @@ const SENTENCES = [
   {k:'wa',a:'كِتَابٌ',b:'قَلَمٌ',fill:'وَ',glue:true,idn:'Buku <b>dan</b> pena',p:'📕 ✏️'},
   {k:'wa',a:'تُفَّاحَةٌ',b:'مَوْزَةٌ',fill:'وَ',glue:true,idn:'Apel <b>dan</b> pisang',p:'🍎 🍌'},
   {k:'wa',a:'الشَّمْسُ',b:'الْقَمَرُ',fill:'وَ',glue:true,idn:'Matahari <b>dan</b> bulan',p:'☀️ 🌙'},
+  {k:'wa',a:'أَبِي',b:'أُمِّي',fill:'وَ',glue:true,idn:'Ayahku <b>dan</b> ibuku',p:'👨 👩'},
   {k:'au',a:'تُفَّاحَةٌ',b:'مَوْزَةٌ؟',fill:'أَوْ',idn:'Apel <b>atau</b> pisang?',p:'🍎 ❓ 🍌'},
   {k:'au',a:'أَحْمَرُ',b:'أَزْرَقُ؟',fill:'أَوْ',idn:'Merah <b>atau</b> biru?',p:'🟥 ❓ 🟦'},
+  {k:'au',a:'أَسَدٌ',b:'فِيلٌ؟',fill:'أَوْ',idn:'Singa <b>atau</b> gajah?',p:'🦁 ❓ 🐘'},
   {k:'tsumma',a:'وَاحِدٌ',b:'اِثْنَانِ',fill:'ثُمَّ',idn:'Satu <b>kemudian</b> dua',p:'1️⃣ ➡️ 2️⃣'},
   {k:'tsumma',a:'أَكَلْتُ تُفَّاحَةً',b:'شَرِبْتُ مَاءً',fill:'ثُمَّ',idn:'Aku makan apel, <b>kemudian</b> minum air',p:'🍎 ➡️ 💧'},
   {k:'lakin',a:'الْقَلَمُ أَحْمَرُ',b:'الْكِتَابُ أَزْرَقُ',fill:'لٰكِنِ',idn:'Pena itu merah, <b>tetapi</b> buku itu biru',p:'✏️🟥 📘🟦'},
   {k:'lakin',a:'الْبَيْتُ كَبِيرٌ',b:'السَّيَّارَةُ صَغِيرَةٌ',fill:'لٰكِنِ',idn:'Rumah itu besar, <b>tetapi</b> mobil itu kecil',p:'🏠 🚗'},
+  {k:'lakin',a:'الْفِيلُ كَبِيرٌ',b:'النَّمْلَةُ صَغِيرَةٌ',fill:'لٰكِنِ',idn:'Gajah itu besar, <b>tetapi</b> semut itu kecil',p:'🐘 🐜'},
   {k:'fa',a:'جَاءَ أَحْمَدُ',b:'جَلَسَ',fill:'فَـ',show:'فَ',glue:true,idn:'Ahmad datang <b>lalu</b> duduk',p:'🚶 ➡️ 🪑'},
   {k:'lianna',a:'أَشْرَبُ الْمَاءَ',b:'عَطْشَانُ',fill:'لِأَنِّي',idn:'Aku minum air <b>karena</b> aku haus',p:'💧 😮‍💨'},
   {k:'hatta',a:'أَعُدُّ مِنْ وَاحِدٍ',b:'عَشَرَةٍ',fill:'حَتَّى',idn:'Aku berhitung dari satu <b>sampai</b> sepuluh',p:'1️⃣ ➡️ 🔟'}
 ];
+/* fastSec: batas detik per soal untuk lencana "Secepat Kilat" (0 = tidak berlaku) */
 const GAMES = {
-  belajar:{name:'Kartu Belajar',icon:'🃏',desc:'Lihat gambar, balik kartunya, dengarkan kata Arabnya.',stars:false},
-  tebak:{name:'Tebak Kata',icon:'🎯',desc:'Pilih jawaban yang benar. Kumpulkan bintang!',stars:true},
-  memori:{name:'Kartu Kembar',icon:'🧠',desc:'Cari pasangan gambar dan kata Arabnya.',stars:true},
-  balon:{name:'Letus Balon',icon:'🎈',desc:'Cepat! Letuskan balon yang kata Arabnya cocok.',stars:true},
-  kalimat:{name:'Lengkapi Kalimat',icon:'🧩',desc:'Pilih kata sambung yang pas untuk kalimatnya.',stars:true}
+  belajar:{name:'Kartu Belajar',icon:'🃏',desc:'Lihat gambar, balik kartunya, dengarkan kata Arabnya. (Latihan, tanpa nilai)',scored:false},
+  tebak:{name:'Tebak Kata',icon:'🎯',desc:'Pilih jawaban yang benar. Setiap soal benar 10 poin.',scored:true,fastSec:5},
+  memori:{name:'Kartu Kembar',icon:'🧠',desc:'Cari pasangan gambar dan kata Arabnya. Salah tebak −2 poin.',scored:true,fastSec:6},
+  balon:{name:'Letus Balon',icon:'🎈',desc:'Letuskan balon yang kata Arabnya cocok. Salah ketuk −3 poin.',scored:true,fastSec:0},
+  kalimat:{name:'Lengkapi Kalimat',icon:'🧩',desc:'Pilih kata sambung yang pas. Setiap kalimat benar 10 poin.',scored:true,fastSec:7}
 };
 function gamesFor(t){ return t==='sambung' ? ['belajar','kalimat','tebak','memori','balon'] : ['belajar','tebak','memori','balon']; }
+const BADGES = [
+  {id:'first',icon:'🎉',name:'Langkah Pertama',desc:'Menyelesaikan permainan pertama'},
+  {id:'star',icon:'⭐',name:'Bintang Kelas',desc:'Mendapat nilai minimal 80'},
+  {id:'perfect',icon:'🏅',name:'Mumtaz!',desc:'Semua jawaban benar (nilai 100)'},
+  {id:'fast',icon:'⚡',name:'Secepat Kilat',desc:'Menjawab dengan cepat dan nilai minimal 70'},
+  {id:'memory',icon:'🐘',name:'Ingatan Gajah',desc:'Menyelesaikan Kartu Kembar dalam 8 langkah atau kurang'},
+  {id:'balloon',icon:'🎈',name:'Raja Balon',desc:'Menang Letus Balon tanpa salah ketuk'},
+  {id:'sentence',icon:'🧩',name:'Ahli Kalimat',desc:'Nilai 100 di Lengkapi Kalimat'},
+  {id:'master',icon:'👑',name:'Juara Bahasa Arab',desc:'3 bintang di semua game dalam satu topik'},
+  {id:'explorer',icon:'🧭',name:'Penjelajah Game',desc:'Memainkan keempat jenis permainan bernilai'},
+  {id:'rainbow',icon:'🌈',name:'Pelangi Topik',desc:'Bermain di ketujuh topik'},
+  {id:'diligent',icon:'📚',name:'Rajin Belajar',desc:'Menyelesaikan 10 permainan'},
+  {id:'champion',icon:'🏆',name:'Pantang Menyerah',desc:'Menyelesaikan 25 permainan'}
+];
 
 /* ================= UTILITAS ================= */
 const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
 const app = $('#app');
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
 const sample = (a,n) => shuffle(a).slice(0,n);
 const stars = n => '⭐'.repeat(n) + '☆'.repeat(3-n);
+const fmtTime = s => Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
 
-/* progres disimpan di browser */
-const KEY='arabku-ceria-v1';
-let prog={}, soundOn=true;
-try{ prog=JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ prog={}; }
-try{ soundOn = localStorage.getItem(KEY+':sound')!=='off'; }catch(e){}
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(prog)); }catch(e){} }
-const best = (t,g) => prog[t+':'+g]||0;
-function setBest(t,g,s){ if(s>best(t,g)){ prog[t+':'+g]=s; save(); } updateStarChip(); }
-const totalStars = () => Object.values(prog).reduce((a,b)=>a+b,0);
-function topicStars(t){ return gamesFor(t).filter(g=>GAMES[g].stars).reduce((a,g)=>a+best(t,g),0); }
-function topicMax(t){ return gamesFor(t).filter(g=>GAMES[g].stars).length*3; }
-function updateStarChip(){ $('#starChip').textContent='⭐ '+totalStars(); }
+/* ================= PEMAIN & PROGRES ================= */
+const S={topic:null,game:null,t0:0,player:null};
+let soundOn=LS.get('arabku_sound',true);
+const profKey = () => 'arabku_profile_'+S.player.name.toLowerCase()+'|'+(S.player.kelas||'');
+function getProfile(){
+  const base={plays:0,games:{},topics:{},badges:{},history:[],best:{}};
+  return S.player ? Object.assign(base,LS.get(profKey(),{})) : base;
+}
+const best = (t,g) => getProfile().best[t+':'+g]||0;
+const totalStars = () => Object.values(getProfile().best).reduce((a,b)=>a+b,0);
+function topicStars(t){ const b=getProfile().best; return gamesFor(t).filter(g=>GAMES[g].scored).reduce((a,g)=>a+(b[t+':'+g]||0),0); }
+function topicMax(t){ return gamesFor(t).filter(g=>GAMES[g].scored).length*3; }
+function updateStarChip(){ const c=$('#starChip'); c.hidden=!S.player; c.textContent='⭐ '+totalStars(); }
 
 /* toast */
 let toastT;
@@ -472,6 +624,7 @@ function confetti(){
 /* gambar untuk tiap kata */
 function pic(kind,it){
   if(kind==='emoji') return `<span class="pic-emoji" role="img" aria-label="${it.id}">${it.e}</span>`;
+  if(kind==='people') return `<span class="pic-people"><span class="pic-emoji" aria-hidden="true">${it.e}</span><b>${it.id}</b></span>`;
   if(kind==='color') return `<span class="pic-color" role="img" aria-label="warna ${it.id}" style="--c:${it.e}"></span>`;
   if(kind==='count') return `<span class="pic-count" role="img" aria-label="${it.n} bulatan" style="--cols:${Math.min(it.n,5)}">${'<i></i>'.repeat(it.n)}</span>`;
   return `<span class="pic-conj"><span class="ci" aria-hidden="true">${it.e}</span><b>${it.id}</b></span>`;
@@ -479,7 +632,6 @@ function pic(kind,it){
 const arWord = (it,latin=true) => `<span class="ar" lang="ar">${it.ar}</span>${latin?`<span class="lt">${it.lt}</span>`:''}`;
 
 /* ================= NAVIGASI ================= */
-const S={topic:null,game:null};
 let cleanup=null, backAction=null;
 function go(fn){
   if(cleanup){ cleanup(); cleanup=null; }
@@ -488,28 +640,74 @@ function go(fn){
 function setBack(fn,label='← Kembali'){
   backAction=fn; const b=$('#backBtn'); b.hidden=!fn; b.textContent=label;
 }
+const homeOrStart = () => S.player ? home() : startScreen();
 $('#backBtn').onclick=()=>{ if(backAction) go(backAction); };
-$('#brandBtn').onclick=()=>go(home);
+$('#brandBtn').onclick=()=>go(homeOrStart);
+$('#boardBtn').onclick=()=>{ const from = S.player ? (S.topic ? topicScreen : home) : startScreen; go(()=>boardScreen(from)); };
 function renderSound(){ $('#soundBtn').textContent=soundOn?'🔊':'🔇'; $('#soundBtn').setAttribute('aria-label',soundOn?'Matikan suara':'Nyalakan suara'); }
-$('#soundBtn').onclick=()=>{ soundOn=!soundOn; try{localStorage.setItem(KEY+':sound',soundOn?'on':'off');}catch(e){} if(!soundOn) stopSpeech(); renderSound(); };
+$('#soundBtn').onclick=()=>{ soundOn=!soundOn; LS.set('arabku_sound',soundOn); if(!soundOn) stopSpeech(); renderSound(); };
 function themeVars(T){ return `--tc:${T.color};--tcd:${T.deep}`; }
 
-/* ================= BERANDA ================= */
-function home(){
-  S.topic=null; setBack(null);
+/* ================= LAYAR MASUK ================= */
+function startScreen(){
+  S.topic=null; setBack(null); updateStarChip();
+  const last=LS.get('arabku_last_player',null)||{};
   app.innerHTML=`
   <div class="title-block">
     <h1>Arabku Ceria</h1>
     <span class="ar" lang="ar">هَيَّا نَتَعَلَّمُ اللُّغَةَ الْعَرَبِيَّةَ</span>
-    <span class="lt">Hayyaa nata'allamul lughatal 'arabiyyah — Ayo belajar bahasa Arab!</span>
+    <span class="lt">Hayyaa nata'allamul lughatal 'arabiyyah: Ayo belajar bahasa Arab!${APP_CONFIG.SCHOOL_NAME?' · '+esc(APP_CONFIG.SCHOOL_NAME):''}</span>
   </div>
   <section class="hero">
     <button class="mascot" id="mascot" aria-label="Jamal si unta menyapa">🐫</button>
     <div class="bubble">
-      <p class="hello ar" lang="ar">أَهْلًا وَسَهْلًا!</p>
-      <p>Aku <b>Jamal</b>. Dalam bahasa Arab, unta disebut <span class="ar" lang="ar">جَمَلٌ</span>. Pilih pelajaran, lalu main dan kumpulkan bintang!</p>
+      <p class="hello ar" lang="ar">اَلسَّلَامُ عَلَيْكُمْ!</p>
+      <p>Aku <b>Jamal</b> si unta (<span class="ar" lang="ar">جَمَلٌ</span>). Siapa namamu? Tulis dulu, ya, supaya nilaimu tersimpan.</p>
     </div>
   </section>
+  <form class="panel start-form" id="formStart" autocomplete="off" novalidate>
+    <label for="inpName">Siapa namamu?</label>
+    <input id="inpName" type="text" maxlength="30" placeholder="Tulis namamu di sini" value="${esc(last.name||'')}">
+    <label for="inpClass">Kelas</label>
+    <select id="inpClass">
+      <option value="">Pilih kelas (boleh dikosongkan)</option>
+      ${[1,2,3,4,5,6].map(k=>`<option value="${k}" ${String(last.kelas)===String(k)?'selected':''}>Kelas ${k}</option>`).join('')}
+    </select>
+    <p class="form-error" id="startErr" role="alert"></p>
+    <button type="submit" class="btn coral big">Ayo Mulai!</button>
+  </form>
+  <div class="start-links">
+    <button class="btn ghost small" id="toBoard">🏆 Papan Prestasi</button>
+    <button class="btn ghost small" id="toSettings">⚙️ Pengaturan</button>
+  </div>`;
+  $('#mascot').onclick=()=>{ speak('اَلسَّلَامُ عَلَيْكُمْ'); fx.flip(); };
+  $('#toBoard').onclick=()=>go(()=>boardScreen(startScreen));
+  $('#toSettings').onclick=()=>go(settingsScreen);
+  $('#formStart').onsubmit=e=>{
+    e.preventDefault();
+    const name=$('#inpName').value.replace(/\s+/g,' ').trim();
+    const err=$('#startErr');
+    if(name.length<2){ err.textContent='Nama minimal 2 huruf, ya.'; return; }
+    if(!/[a-zA-Z]/.test(name)){ err.textContent='Nama harus berisi huruf.'; return; }
+    S.player={name:name.slice(0,30),kelas:$('#inpClass').value};
+    LS.set('arabku_last_player',S.player);
+    fx.win(); try{ speechSynthesis.getVoices(); }catch(x){}
+    go(home);
+  };
+}
+
+/* ================= BERANDA ================= */
+function home(){
+  S.topic=null; setBack(null); updateStarChip();
+  app.innerHTML=`
+  <div class="greet">
+    <div>
+      <h1>Ahlan, ${esc(S.player.name)}!</h1>
+      <span class="ar" lang="ar">أَهْلًا وَسَهْلًا</span>
+      <p class="sub">${S.player.kelas?'Kelas '+esc(S.player.kelas)+' · ':''}⭐ ${totalStars()} bintang terkumpul</p>
+    </div>
+    <button class="btn ghost small" id="switchPlayer">Ganti pemain</button>
+  </div>
   <span class="section-label">Pilih pelajaran</span>
   <div class="topics">
     ${Object.entries(TOPICS).map(([key,T])=>`
@@ -522,15 +720,15 @@ function home(){
       </button>`).join('')}
   </div>
   <section class="howto">
-    <span class="section-label">Cara bermain</span>
-    <ol>
-      <li><b>Kartu Belajar</b>: kenali dulu kata-katanya dan dengarkan cara membacanya.</li>
-      <li><b>Tebak Kata</b> dan <b>Kartu Kembar</b>: latih ingatanmu.</li>
-      <li><b>Letus Balon</b>: uji kecepatanmu. Dapatkan 3 bintang di setiap game!</li>
-    </ol>
+    <span class="section-label">Cara menilai</span>
+    <ul>
+      <li>Setiap jawaban benar bernilai <b>10 poin</b>. Nilai = poin ÷ poin maksimal × 100.</li>
+      <li>⭐⭐⭐ nilai 90 ke atas · ⭐⭐ nilai 70 ke atas · ⭐ nilai 50 ke atas.</li>
+      <li>Kumpulkan <b>${BADGES.length} lencana</b> dan lihat peringkatmu di 🏆 Papan Prestasi.</li>
+    </ul>
   </section>`;
-  $('#mascot').onclick=()=>{ speak('أَهْلًا وَسَهْلًا'); fx.flip(); };
-  app.querySelectorAll('.topic').forEach(b=>b.onclick=()=>{ S.topic=b.dataset.t; go(topicScreen); });
+  $('#switchPlayer').onclick=()=>{ S.player=null; go(startScreen); };
+  $$('.topic').forEach(b=>b.onclick=()=>{ S.topic=b.dataset.t; go(topicScreen); });
 }
 
 /* ================= HALAMAN PELAJARAN ================= */
@@ -548,18 +746,18 @@ function topicScreen(){
         <span class="g-icon" aria-hidden="true">${GAMES[g].icon}</span>
         <b>${GAMES[g].name}</b>
         <small>${GAMES[g].desc}</small>
-        ${GAMES[g].stars?`<span class="g-stars" aria-label="${best(S.topic,g)} dari 3 bintang">${stars(best(S.topic,g))}</span>`:''}
+        ${GAMES[g].scored?`<span class="g-stars" aria-label="${best(S.topic,g)} dari 3 bintang">${stars(best(S.topic,g))}</span>`:''}
       </button>`).join('')}
   </div>
   <span class="section-label">Kamus mini · ketuk untuk mendengar</span>
   <div class="kamus">
-    ${T.items.map((it,i)=>`<button class="k-item" data-i="${i}">${pic(T.kind,it)}${arWord(it)}<span class="id">${it.id}</span></button>`).join('')}
+    ${T.items.map((it,i)=>`<button class="k-item" data-i="${i}">${T.kind==='people'?`<span class="pic-emoji" aria-hidden="true">${it.e}</span>`:pic(T.kind,it)}${arWord(it)}<span class="id">${it.id}</span></button>`).join('')}
   </div>`;
-  app.querySelectorAll('.game').forEach(b=>b.onclick=()=>startGame(b.dataset.g));
-  app.querySelectorAll('.k-item').forEach(b=>b.onclick=()=>speak(T.items[b.dataset.i].ar));
+  $$('.game').forEach(b=>b.onclick=()=>startGame(b.dataset.g));
+  $$('.k-item').forEach(b=>b.onclick=()=>speak(T.items[b.dataset.i].ar));
 }
 function startGame(g){
-  S.game=g;
+  S.game=g; S.t0=Date.now();
   go({belajar:playBelajar,tebak:playTebak,memori:playMemori,balon:playBalon,kalimat:playKalimat}[g]);
 }
 function gameTitle(sub){
@@ -568,35 +766,246 @@ function gameTitle(sub){
   return `<div class="g-title"><div><h2>${G.icon} ${G.name}</h2>${sub?`<p>${sub}</p>`:''}</div></div>`;
 }
 
-/* ================= HASIL ================= */
-function result(st,detail){
-  const T=TOPICS[S.topic];
-  setBest(S.topic,S.game,st);
+/* ================= PENILAIAN =================
+ * r = { correct, total, points, note, moves?, wrong?, won? }
+ * Poin maksimal = total × 10. Nilai = poin ÷ poin maksimal × 100.
+ * Bintang: ≥90 → 3, ≥70 → 2, ≥50 → 1 (sama dengan English Fun Games).
+ */
+function finish(r){
+  const G=GAMES[S.game], T=TOPICS[S.topic];
+  const dur=Math.round((Date.now()-S.t0)/1000);
+  const max=r.total*10;
+  const points=Math.max(0,Math.min(max,r.points));
+  const percent=max?Math.round(points/max*100):0;
+  const st=percent>=90?3:percent>=70?2:percent>=50?1:0;
+  const prof=getProfile();
+  prof.plays++; prof.games[S.game]=1; prof.topics[S.topic]=1;
+  const key=S.topic+':'+S.game;
+  if(st>(prof.best[key]||0)) prof.best[key]=st;
+  const cond={
+    first:true,
+    star:percent>=80,
+    perfect:percent>=100,
+    fast:percent>=70 && G.fastSec>0 && dur/r.total<=G.fastSec,
+    memory:S.game==='memori' && r.moves<=8,
+    balloon:S.game==='balon' && r.won && r.wrong===0,
+    sentence:S.game==='kalimat' && percent>=100,
+    master:gamesFor(S.topic).filter(g=>GAMES[g].scored).every(g=>(prof.best[S.topic+':'+g]||0)===3),
+    explorer:['tebak','memori','balon','kalimat'].every(g=>prof.games[g]),
+    rainbow:Object.keys(TOPICS).every(t=>prof.topics[t]),
+    diligent:prof.plays>=10,
+    champion:prof.plays>=25
+  };
+  const PER_ROUND=['star','perfect','fast','memory','balloon','sentence'];
+  const earned=[], thisRound=[];
+  BADGES.forEach(b=>{
+    if(!cond[b.id]) return;
+    if(PER_ROUND.includes(b.id)) thisRound.push(b.id);
+    if(!prof.badges[b.id]){ prof.badges[b.id]=new Date().toISOString(); earned.push(b); }
+  });
+  const rec={
+    timestamp:new Date().toISOString(), name:S.player.name, kelas:S.player.kelas||'',
+    game:S.game, gameName:G.name, topic:S.topic, topicName:T.name,
+    score:points, maxScore:max, correct:r.correct, total:r.total, percent, stars:st,
+    duration:dur, badges:thisRound.join(',')
+  };
+  prof.history.unshift(rec); prof.history=prof.history.slice(0,100);
+  LS.set(profKey(),prof);
+  const all=LS.get('arabku_results',[]); all.unshift(rec); LS.set('arabku_results',all.slice(0,1000));
+  updateStarChip();
+  showResult(rec,earned,r.note||'');
+}
+function showResult(rec,earned,note){
   const msg=[
     {ar:'حَاوِلْ مَرَّةً أُخْرَى',lt:'haawil marratan ukhraa',t:'Coba sekali lagi, kamu pasti bisa!'},
-    {ar:'جَيِّدٌ',lt:'jayyidun',t:'Bagus! Ayo kejar 3 bintang.'},
-    {ar:'جَيِّدٌ جِدًّا',lt:'jayyidun jiddan',t:'Bagus sekali!'},
-    {ar:'مُمْتَازٌ',lt:'mumtaazun',t:'Luar biasa! Sempurna!'}
-  ][st];
+    {ar:'جَيِّدٌ',lt:'jayyidun',t:'Bagus! Terus berlatih, ya.'},
+    {ar:'جَيِّدٌ جِدًّا',lt:'jayyidun jiddan',t:'Hebat sekali!'},
+    {ar:'مُمْتَازٌ',lt:'mumtaazun',t:'Luar biasa!'}
+  ][rec.stars];
+  const T=TOPICS[S.topic], G=GAMES[S.game];
   app.innerHTML=`
   ${gameTitle()}
   <div class="result">
-    <div class="r-stars" aria-label="${st} dari 3 bintang">${[1,2,3].map(i=>`<span class="${i<=st?'on':''}">⭐</span>`).join('')}</div>
+    <div class="r-stars" aria-label="${rec.stars} dari 3 bintang">${[1,2,3].map(i=>`<span class="${i<=rec.stars?'on':''}">⭐</span>`).join('')}</div>
     <span class="ar" lang="ar">${msg.ar}</span>
     <span class="lt">${msg.lt}</span>
     <h2>${msg.t}</h2>
-    <p>${detail}</p>
+    <p class="r-sub">${esc(rec.name)} · ${G.icon} ${G.name} · ${T.name}</p>
+    <div class="r-stats">
+      <div><b>${rec.percent}</b><span>Nilai</span></div>
+      <div><b>${rec.score}</b><span>Poin</span></div>
+      <div><b>${rec.correct}/${rec.total}</b><span>Benar</span></div>
+      <div><b>${fmtTime(rec.duration)}</b><span>Waktu</span></div>
+    </div>
+    ${note?`<p>${note}</p>`:''}
+    ${earned.length?`<div class="new-badges"><h3>🎖️ Lencana baru!</h3><div class="badges">${earned.map(b=>`<div class="badge on"><span>${b.icon}</span><b>${b.name}</b><small>${b.desc}</small></div>`).join('')}</div></div>`:''}
+    <p class="save-status" id="saveStatus">⏳ Menyimpan nilai…</p>
     <div class="r-actions">
       <button class="btn coral big" id="again">🔁 Main lagi</button>
+      <button class="btn plum" id="toBoardR">🏆 Papan Prestasi</button>
       <button class="btn ghost" id="other">Pilih game lain</button>
     </div>
   </div>`;
   $('#again').onclick=()=>startGame(S.game);
   $('#other').onclick=()=>go(topicScreen);
-  if(st>0){ fx.win(); confetti(); }
+  $('#toBoardR').onclick=()=>go(()=>boardScreen(topicScreen,{game:S.game,topic:S.topic}));
+  if(rec.stars>=2){ fx.win(); confetti(); } else if(rec.stars===1) fx.good();
   setTimeout(()=>speak(msg.ar),500);
+  saveResult(rec).then(stt=>{
+    const el=$('#saveStatus'); if(!el) return;
+    el.textContent = stt==='sheet' ? '✅ Nilai tersimpan ke Google Spreadsheet'
+      : stt==='queued' ? '⚠️ Belum bisa terhubung ke spreadsheet. Nilai disimpan di perangkat dan akan dikirim ulang otomatis.'
+      : '💾 Nilai tersimpan di perangkat ini (Google Spreadsheet belum diatur).';
+  });
 }
-const starsFromRatio = r => r>=.9?3 : r>=.7?2 : r>=.4?1 : 0;
+
+/* ================= GOOGLE SPREADSHEET ================= */
+const apiUrl = () => String(LS.get('arabku_api_url','') || APP_CONFIG.SHEET_API_URL || '').trim();
+async function postToSheet(rec,url){
+  const res=await fetch(url,{method:'POST',body:JSON.stringify(rec)});
+  const j=await res.json();
+  if(!j.ok) throw new Error(j.error||'gagal');
+}
+async function saveResult(rec){
+  const url=apiUrl();
+  if(!url) return 'local';
+  try{ await postToSheet(rec,url); return 'sheet'; }
+  catch(e){ const q=LS.get('arabku_queue',[]); q.push(rec); LS.set('arabku_queue',q.slice(-200)); return 'queued'; }
+}
+async function flushQueue(){
+  const url=apiUrl(); if(!url) return;
+  const q=LS.get('arabku_queue',[]); if(!q.length) return;
+  const left=[];
+  for(const rec of q){ try{ await postToSheet(rec,url); }catch(e){ left.push(rec); } }
+  LS.set('arabku_queue',left);
+  if(q.length>left.length) toast(`☁️ ${q.length-left.length} nilai tertunda berhasil dikirim`);
+}
+
+/* ================= PAPAN PRESTASI ================= */
+function aggregate(list,f){
+  const total=f.game==='all' && f.topic==='all';
+  const map={};
+  list.forEach(r=>{
+    if(f.game!=='all' && r.game!==f.game) return;
+    if(f.topic!=='all' && r.topic!==f.topic) return;
+    const k=String(r.name).toLowerCase()+'|'+(r.kelas||'');
+    const c=map[k]||{name:r.name,kelas:r.kelas,score:0,plays:0,stars:0};
+    c.score = total ? c.score+r.score : Math.max(c.score,r.score);
+    c.plays++; c.stars+=r.stars; map[k]=c;
+  });
+  return {mode:total?'total':'best', rows:Object.values(map).sort((a,b)=>b.score-a.score||b.stars-a.stars)};
+}
+function boardScreen(from,filter){
+  filter=filter||{game:'all',topic:'all'};
+  setBack(from||homeOrStart);
+  const scoredGames=Object.keys(GAMES).filter(g=>GAMES[g].scored);
+  app.innerHTML=`
+  <div class="g-title"><div><h2>🏆 Papan Prestasi</h2><p>Peringkat, lencana, dan riwayat bermain.</p></div></div>
+  <div class="tabs" role="tablist">
+    <button class="tab on" data-tab="rank" role="tab">Peringkat</button>
+    <button class="tab" data-tab="badges" role="tab">Lencana</button>
+    <button class="tab" data-tab="history" role="tab">Riwayat</button>
+  </div>
+  <section class="panel" id="tab-rank">
+    <div class="filters">
+      <label>Game<select id="fGame"><option value="all">🎮 Semua game</option>${scoredGames.map(g=>`<option value="${g}" ${filter.game===g?'selected':''}>${GAMES[g].icon} ${GAMES[g].name}</option>`).join('')}</select></label>
+      <label>Topik<select id="fTopic"><option value="all">📚 Semua topik</option>${Object.entries(TOPICS).map(([k,T])=>`<option value="${k}" ${filter.topic===k?'selected':''}>${T.icon} ${T.name}</option>`).join('')}</select></label>
+    </div>
+    <p class="note" id="boardNote"></p>
+    <div class="table-wrap" id="boardList"></div>
+  </section>
+  <section class="panel" id="tab-badges" hidden></section>
+  <section class="panel" id="tab-history" hidden></section>`;
+  $$('.tab').forEach(t=>t.onclick=()=>{
+    $$('.tab').forEach(x=>x.classList.toggle('on',x===t));
+    ['rank','badges','history'].forEach(id=>$('#tab-'+id).hidden = id!==t.dataset.tab);
+    if(t.dataset.tab==='badges') renderBadges();
+    if(t.dataset.tab==='history') renderHistory();
+  });
+  $('#fGame').onchange=loadBoard; $('#fTopic').onchange=loadBoard;
+  loadBoard();
+}
+let boardReq=0;
+async function loadBoard(){
+  const f={game:$('#fGame').value,topic:$('#fTopic').value};
+  const my=++boardReq;
+  const list=$('#boardList'), note=$('#boardNote');
+  list.innerHTML='<p class="empty">⏳ Memuat peringkat…</p>';
+  let rows=null, mode, source='local';
+  const url=apiUrl();
+  if(url){
+    try{
+      const q=new URLSearchParams(Object.assign({action:'leaderboard',limit:50},f));
+      const res=await fetch(url+(url.includes('?')?'&':'?')+q.toString());
+      const j=await res.json();
+      if(j.ok){ rows=j.rows; mode=j.mode; source='sheet'; }
+    }catch(e){}
+  }
+  if(my!==boardReq || !document.body.contains(list)) return;
+  if(!rows){ const ag=aggregate(LS.get('arabku_results',[]),f); rows=ag.rows; mode=ag.mode; }
+  note.textContent=(source==='sheet'?'☁️ Data dari Google Spreadsheet':'💾 Data dari perangkat ini'+(url?' (spreadsheet tidak dapat dihubungi)':''))+
+    ' · '+(mode==='total'?'Total poin semua permainan':'Poin terbaik tiap pemain');
+  if(!rows.length){ list.innerHTML='<p class="empty">Belum ada nilai. Ayo jadi yang pertama!</p>'; return; }
+  const me=S.player?S.player.name.toLowerCase():'';
+  const medal=['🥇','🥈','🥉'];
+  list.innerHTML=`<table class="board"><thead><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Poin</th><th>Main</th></tr></thead><tbody>
+    ${rows.slice(0,50).map((r,k)=>`<tr class="${String(r.name).toLowerCase()===me?'me':''}"><td>${medal[k]||k+1}</td><td>${esc(r.name)}</td><td>${esc(r.kelas||'-')}</td><td><b>${esc(r.score)}</b></td><td>${esc(r.plays)}×</td></tr>`).join('')}
+  </tbody></table>`;
+}
+function renderBadges(){
+  const box=$('#tab-badges');
+  if(!S.player){ box.innerHTML='<p class="empty">Masukkan nama dulu untuk melihat lencanamu.</p>'; return; }
+  const prof=getProfile();
+  const got=BADGES.filter(b=>prof.badges[b.id]).length;
+  box.innerHTML=`<p class="note">${esc(S.player.name)} sudah mengumpulkan <b>${got}</b> dari ${BADGES.length} lencana · ${prof.plays} permainan selesai</p>
+    <div class="badges">${BADGES.map(b=>`<div class="badge ${prof.badges[b.id]?'on':''}"><span>${prof.badges[b.id]?b.icon:'🔒'}</span><b>${b.name}</b><small>${b.desc}</small></div>`).join('')}</div>`;
+}
+function renderHistory(){
+  const box=$('#tab-history');
+  if(!S.player){ box.innerHTML='<p class="empty">Masukkan nama dulu untuk melihat riwayatmu.</p>'; return; }
+  const h=getProfile().history;
+  if(!h.length){ box.innerHTML='<p class="empty">Belum ada riwayat permainan.</p>'; return; }
+  box.innerHTML=`<div class="table-wrap"><table class="board"><thead><tr><th>Game</th><th>Topik</th><th>Nilai</th><th>⭐</th></tr></thead><tbody>
+    ${h.slice(0,50).map(r=>`<tr><td>${GAMES[r.game]?GAMES[r.game].icon:''} ${esc(r.gameName)}</td><td>${esc(r.topicName)}</td><td>${esc(r.percent)}</td><td>${'⭐'.repeat(r.stars)||'-'}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ================= PENGATURAN ================= */
+function settingsScreen(){
+  setBack(startScreen);
+  app.innerHTML=`
+  <div class="g-title"><div><h2>⚙️ Pengaturan</h2><p>Untuk guru: hubungkan ke Google Spreadsheet agar nilai semua murid terkumpul.</p></div></div>
+  <section class="panel start-form">
+    <label for="inpApi">URL Web App Google Apps Script</label>
+    <input id="inpApi" type="url" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(apiUrl())}">
+    <p class="note" id="apiStatus">${apiUrl()?'':'Belum terhubung. Nilai hanya disimpan di perangkat ini.'}</p>
+    <div class="r-actions">
+      <button class="btn ghost" id="apiTest">Tes Koneksi</button>
+      <button class="btn" id="apiSave">Simpan</button>
+    </div>
+    <p class="note">Cara membuat URL ini ada di README folder <code>arabic-games</code>. Kosongkan lalu tekan Simpan untuk berhenti mengirim ke spreadsheet.</p>
+  </section>`;
+  $('#apiTest').onclick=()=>testApi($('#inpApi').value.trim());
+  $('#apiSave').onclick=async()=>{
+    const url=$('#inpApi').value.trim();
+    if(!url){ LS.set('arabku_api_url',''); $('#apiStatus').textContent='URL dihapus. Nilai disimpan di perangkat.'; return; }
+    if(await testApi(url)){ LS.set('arabku_api_url',url); toast('✅ Pengaturan disimpan'); flushQueue(); }
+  };
+}
+async function testApi(url){
+  const st=$('#apiStatus');
+  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){ st.textContent='❌ URL harus diawali https://script.google.com/…'; return false; }
+  st.textContent='⏳ Menghubungi…';
+  try{
+    const res=await fetch(url+(url.includes('?')?'&':'?')+'action=ping');
+    const j=await res.json();
+    st.textContent=j.ok?'✅ Terhubung! '+(j.message||''):'❌ '+(j.error||'Respons tidak dikenal');
+    return !!j.ok;
+  }catch(e){
+    st.textContent='❌ Tidak bisa terhubung. Pastikan Web App di-deploy dengan akses "Siapa saja" (Anyone).';
+    return false;
+  }
+}
 
 /* ================= GAME 1: KARTU BELAJAR ================= */
 function playBelajar(){
@@ -670,7 +1079,7 @@ function playTebak(){
       if(pick===it){ b.classList.add('good'); score++; fx.good(); }
       else { b.classList.add('bad'); btns[opts.indexOf(it)].classList.add('good'); fx.bad(); }
       setTimeout(()=>speak(it.ar),200);
-      timer=setTimeout(()=>{ qi++; if(qi<n) render(); else result(starsFromRatio(score/n),`Kamu benar <b>${score}</b> dari ${n} soal.`); },1500);
+      timer=setTimeout(()=>{ qi++; if(qi<n) render(); else finish({correct:score,total:n,points:score*10,note:`Kamu benar <b>${score}</b> dari ${n} soal.`}); },1500);
     });
   }
   render();
@@ -703,8 +1112,8 @@ function playMemori(){
       matched++; $('#mt').textContent=`Pasangan: ${matched}/6`;
       fx.good(); setTimeout(()=>speak(cards[a].it.ar),150);
       if(matched===6){
-        const st = moves<=9?3 : moves<=13?2 : 1;
-        timer=setTimeout(()=>result(st,`Semua pasangan ketemu dalam <b>${moves}</b> langkah. ${st<3?'Coba selesaikan dalam 9 langkah untuk 3 bintang!':''}`),1100);
+        const points=Math.max(0,60-2*(moves-6));
+        timer=setTimeout(()=>finish({correct:6,total:6,points,moves,note:`Semua pasangan ketemu dalam <b>${moves}</b> langkah. Setiap salah tebak mengurangi 2 poin.`}),1100);
       }
     } else {
       lock=true;
@@ -717,7 +1126,7 @@ function playMemori(){
 function playBalon(){
   const T=TOPICS[S.topic];
   const GOAL=8;
-  let lives=3, got=0, target=null, balloons=[], raf=0, last=0, spawnIn=0, running=false, lastX=-999;
+  let lives=3, got=0, wrong=0, target=null, balloons=[], raf=0, last=0, spawnIn=0, running=false, lastX=-999;
   const colors = T.kind==='color' ? ['#F2F0FA'] : ['#FF6F59','#6C5CE0','#0E8C7F','#E8508F','#2F80ED','#F2994A'];
   app.innerHTML=`
   ${gameTitle()}
@@ -774,7 +1183,7 @@ function playBalon(){
       if(got>=GOAL){ end(true); return; }
       newTarget();
     } else {
-      lives--; fx.bad(); b.el.classList.remove('wrong'); void b.el.offsetWidth; b.el.classList.add('wrong');
+      lives--; wrong++; fx.bad(); b.el.classList.remove('wrong'); void b.el.offsetWidth; b.el.classList.add('wrong');
       toast(`Itu ${b.it.lt} = ${b.it.id}`,1600);
       hud();
       if(lives<=0) end(false);
@@ -797,7 +1206,8 @@ function playBalon(){
   }
   function end(win){
     running=false; cancelAnimationFrame(raf);
-    setTimeout(()=>result(win?lives:0, win?`Kamu meletuskan ${GOAL} balon dengan ${lives} nyawa tersisa.`:`Kamu sudah meletuskan <b>${got}</b> balon. Lihat lagi Kartu Belajar, lalu coba lagi!`),700);
+    const points=Math.max(0,got*10-wrong*3);
+    setTimeout(()=>finish({correct:got,total:GOAL,points,wrong,won:win,note: win?`Kamu meletuskan ${GOAL} balon dengan ${wrong} kali salah ketuk (−3 poin tiap salah).`:`Kamu sudah meletuskan <b>${got}</b> balon. Lihat lagi Kartu Belajar, lalu coba lagi!`}),700);
   }
   $('#go').onclick=()=>{
     $('#ov').remove(); running=true; newTarget(); spawnIn=0; last=0;
@@ -838,14 +1248,16 @@ function playKalimat(){
       if(pick===ans){ b.classList.add('good'); score++; fx.good(); }
       else { b.classList.add('bad'); btns[opts.indexOf(ans)].classList.add('good'); fx.bad(); }
       setTimeout(()=>speak(full(q),.7),250);
-      timer=setTimeout(()=>{ qi++; if(qi<n) render(); else result(starsFromRatio(score/n),`Kamu benar <b>${score}</b> dari ${n} kalimat.`); },2600);
+      timer=setTimeout(()=>{ qi++; if(qi<n) render(); else finish({correct:score,total:n,points:score*10,note:`Kamu benar <b>${score}</b> dari ${n} kalimat.`}); },2600);
     });
   }
   render();
 }
 
 /* ================= MULAI ================= */
-renderSound(); updateStarChip(); home();
+renderSound(); updateStarChip(); startScreen();
+flushQueue();
+window.addEventListener('online',flushQueue);
 </script>
 </body>
 </html>
