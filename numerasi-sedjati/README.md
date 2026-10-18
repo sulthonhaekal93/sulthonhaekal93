@@ -2,7 +2,7 @@
 
 **Taman Belajar Sedjati — "Belajar, Bermain, Berhitung!"**
 
-Game numerasi berbahasa Indonesia untuk anak TK sampai kelas 6 SD. Anak belajar penjumlahan, pengurangan, perkalian, dan pembagian lewat benda, kelompok, garis bilangan, dan blok puluhan, dengan umpan balik yang ramah. Bisa dibuka di HP Android, tablet, dan laptop. Tidak perlu server, tidak ada iklan, dan tidak ada data yang dikirim ke internet.
+Game numerasi berbahasa Indonesia untuk anak TK sampai kelas 6 SD. Anak belajar penjumlahan, pengurangan, perkalian, dan pembagian lewat benda, kelompok, garis bilangan, dan blok puluhan, dengan umpan balik yang ramah. Bisa dibuka di HP Android, tablet, dan laptop. Tidak perlu server dan tidak ada iklan. Progres tersimpan otomatis di perangkat, dan bisa juga dikirim ke Google Spreadsheet guru (opsional).
 
 ## Isi permainan
 
@@ -30,6 +30,31 @@ Level menunjukkan **kemampuan**, bukan kelas sekolah.
 - **Progres Belajar:** tampilan anak (bintang, lencana, saran) dan tampilan orang tua/guru (statistik per operasi, status *Sedang berlatih / Mulai lancar / Dikuasai*, soal sulit + latihan ulang, hasil tes, aktivitas terbaru, reset).
 - Beberapa pemain bisa memakai satu perangkat. Bisa juga main sebagai Tamu.
 
+## Hubungkan ke Google Spreadsheet (opsional, ±5 menit)
+
+Tanpa spreadsheet pun game tetap jalan: progres tersimpan otomatis di perangkat. Hubungkan spreadsheet jika guru ingin memantau semua anak di satu tempat.
+
+Spreadsheet akan berisi dua tab:
+- **Riwayat**: satu baris setiap misi/tes yang selesai (waktu, nama, kelompok, mode, jenis, level, area, misi, jumlah soal, benar langsung, benar setelah mencoba, belum benar, nilai, bintang, selesai, keterangan, lencana baru).
+- **Rekap Siswa**: satu baris per anak yang selalu diperbarui (total bintang, misi selesai, lencana, ketepatan, status per operasi, yang perlu dilatih, saran berikutnya, hasil tes awal & akhir).
+
+Langkah:
+1. Buka <https://sheets.new> untuk membuat Spreadsheet baru, misalnya **Hasil Sedjati Numeracy**.
+2. Klik **Ekstensi → Apps Script**.
+3. Hapus semua isi `Code.gs`, lalu tempel seluruh isi [`apps-script/Code.gs`](apps-script/Code.gs). Klik 💾 **Simpan**.
+4. Pilih fungsi **`setup`** lalu klik ▶ **Jalankan**. Izinkan akses (*Tinjau izin → pilih akun → Lanjutan → Buka proyek → Izinkan*). Tab **Riwayat** dan **Rekap Siswa** dibuat otomatis.
+5. Klik **Terapkan (Deploy) → Deployment baru**. Klik ⚙️ lalu pilih **Aplikasi web**:
+   - Jalankan sebagai: **Saya**
+   - Yang memiliki akses: **Siapa saja** (*Anyone*)
+6. Klik **Terapkan**, lalu salin **URL aplikasi web** (berakhiran `/exec`).
+7. Masukkan URL dengan salah satu cara:
+   - **Cara A (disarankan, berlaku di semua perangkat):** buka `config.js`, isi `SHEET_API_URL: 'https://script.google.com/macros/s/XXXX/exec'`, lalu simpan ke GitHub.
+   - **Cara B (hanya perangkat itu):** buka game → **Panduan Orang Tua & Guru** → **Google Spreadsheet (untuk guru)** → tempel URL → **Tes koneksi & simpan**.
+
+Jika internet putus, hasil disimpan dulu di perangkat lalu dikirim otomatis saat online (atau lewat tombol **Kirim yang tertunda**). Gunakan URL Apps Script khusus game ini, bukan URL milik English Fun Games atau Arabku Ceria.
+
+> Jika `Code.gs` diubah, gunakan **Terapkan → Kelola deployment → Edit → Versi: Versi baru** agar URL tetap sama.
+
 ## Menjalankan
 
 Cukup buka `index.html` di browser (klik dua kali). Atau jalankan server lokal:
@@ -52,7 +77,7 @@ Tidak perlu proses build. Semua file statis.
 
 ```bash
 cd numerasi-sedjati
-npm test             # mesin soal & progres (Node, tanpa dependensi)
+npm test             # mesin soal, progres & spreadsheet (Node, tanpa dependensi)
 npm install          # sekali saja, untuk Playwright
 npm run test:e2e     # tes browser: alur bermain, 320px–1280px, data rusak, dll.
 ```
@@ -62,10 +87,13 @@ npm run test:e2e     # tes browser: alur bermain, 320px–1280px, data rusak, dl
 ```
 numerasi-sedjati/
 ├── index.html          kerangka halaman + beranda
+├── config.js           URL Google Spreadsheet (opsional)
+├── apps-script/Code.gs penerima data di Google Spreadsheet
 ├── css/style.css       tampilan (responsif, mendukung "kurangi gerak")
 ├── js/curriculum.js    6 area, misi, mode, kelompok belajar
 ├── js/generator.js     mesin soal lokal + validasi
 ├── js/progress.js      penyimpanan, statistik, lencana, rekomendasi, tes
+├── js/sheet.js         kirim ke spreadsheet + antrean offline
 ├── js/visuals.js       gambar benda & interaksi hitung benda
 ├── js/app.js           layar & alur permainan
 └── tests/              tes Node & Playwright
@@ -73,7 +101,7 @@ numerasi-sedjati/
 
 **Menambah soal:** tambahkan langkah baru di `curriculum.js` (judul, misi, tujuan, konsep) dan fungsi pembuat soal di `generator.js` pada urutan yang sama. Tes akan memeriksa bahwa jumlahnya cocok.
 
-**Data:** tersimpan di `localStorage` dengan kunci `sedjati-numeracy-adventure:v1` dalam satu objek berversi (daftar pemain → misi, statistik, riwayat). Strukturnya bisa langsung dikirim ke backend nanti. Hanya nama panggilan yang disimpan, bukan data pribadi lain.
+**Data:** selalu tersimpan di `localStorage` dengan kunci `sedjati-numeracy-adventure:v1` dalam satu objek berversi (daftar pemain → misi, statistik, riwayat). Strukturnya bisa langsung dikirim ke backend nanti. Hanya nama panggilan yang disimpan, bukan data pribadi lain. Jika spreadsheet dihubungkan, nama panggilan, kelompok, dan hasil belajar juga dikirim ke spreadsheet milik guru.
 
 ## Keterbatasan
 
@@ -81,4 +109,4 @@ numerasi-sedjati/
 - Pembacaan soal memakai suara bawaan perangkat. Jika tidak ada suara bahasa Indonesia, suaranya bisa terdengar kurang alami atau tidak tersedia.
 - Font (Fredoka, Nunito) dimuat dari Google Fonts. Tanpa internet, tampilan memakai font cadangan perangkat.
 - Belum ada seret-lepas (drag-and-drop). Semua interaksi memakai ketukan.
-- Belum terhubung ke Google Spreadsheet seperti game lain di repositori ini.
+- Progres di spreadsheet hanya untuk dipantau guru. Progres anak di game tetap tersimpan per perangkat (pindah perangkat = mulai dari awal di game).

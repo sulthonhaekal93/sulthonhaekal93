@@ -359,6 +359,65 @@ async function playMission(page, pattern) {
   await shot(page, 'i2-final-412');
   await page.close();
 
+  console.log('J. Google Spreadsheet: hubungkan, kirim, antrean offline');
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+    const posts = [];
+    let online = true;
+    // Apps Script tiruan
+    await ctx.route('https://script.google.com/**', async route => {
+      if (!online) return route.abort('internetdisconnected');
+      const req = route.request();
+      if (req.method() === 'POST') posts.push(JSON.parse(req.postData()));
+      return route.fulfill({ status: 200, contentType: 'application/json', headers: { 'Access-Control-Allow-Origin': '*' }, body: JSON.stringify({ ok: true, app: 'sedjati-numeracy' }) });
+    });
+    page = await ctx.newPage();
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(URL);
+    await page.click('[data-action=guide]');
+    ok(await page.isVisible('text=Google Spreadsheet (untuk guru)'), 'pengaturan spreadsheet ada di Panduan');
+    ok(await page.isVisible('text=Google Spreadsheet belum dihubungkan'), 'privasi: belum ada data dikirim');
+    await page.fill('#sheetUrlInput', 'https://contoh.com/exec');
+    await page.click('[data-sheet-save]');
+    ok((await page.textContent('#sheetStatus')).includes('❌'), 'URL salah ditolak');
+    await page.fill('#sheetUrlInput', 'https://script.google.com/macros/s/TES123/exec');
+    await page.click('[data-sheet-save]');
+    await page.waitForFunction(() => document.querySelector('#sheetStatus').textContent.includes('✅'));
+    let st = await page.evaluate(k => JSON.parse(localStorage.getItem(k)), KEY);
+    ok(st.settings.sheetUrl === 'https://script.google.com/macros/s/TES123/exec', 'URL tersimpan setelah tes koneksi');
+    await shot(page, 'j1-sheet-settings-390');
+    await page.click('[data-go=home]:visible');
+    await page.click('[data-action=start]');
+    await page.fill('input[name=name]', 'Sari');
+    await page.click('#profileForm button[type=submit]');
+    await page.click('[data-skip]');
+    await page.click('[data-rec]');
+    await page.click('[data-start]');
+    await playMission(page, ['right']);
+    await page.waitForFunction(() => document.querySelector('#syncNote').textContent.includes('spreadsheet guru'));
+    ok(true, 'ringkasan: tersimpan ke spreadsheet');
+    ok(posts.length === 1, 'satu catatan terkirim');
+    const rec = posts[0];
+    ok(rec.name === 'Sari' && rec.result.kind === 'Misi' && rec.result.total === 8 && rec.result.first === 8 && rec.result.stars === 3, 'isi catatan misi benar');
+    ok(rec.snapshot.stars === 3 && rec.snapshot.missions === 1 && rec.snapshot.attempted === 8, 'isi rekap siswa benar');
+    await shot(page, 'j2-synced-390');
+    // Offline → antre
+    online = false;
+    await page.click('[data-again]');
+    await playMission(page, ['right']);
+    await page.waitForFunction(() => document.querySelector('#syncNote').textContent.includes('saat internet'));
+    ok(true, 'offline: ringkasan memberi tahu akan dikirim nanti');
+    st = await page.evaluate(() => JSON.parse(localStorage.getItem('sedjati-numeracy-adventure:antrean')));
+    ok(st.length === 1, 'catatan menunggu di antrean perangkat');
+    // Online lagi → dikirim saat halaman dibuka ulang
+    online = true;
+    await page.reload();
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sedjati-numeracy-adventure:antrean') || '[]').length === 0);
+    ok(posts.length === 2, 'antrean terkirim setelah online');
+    await page.close();
+    await ctx.close();
+  }
+
   await browser.close();
   ok(errors.length === 0, 'tidak ada error JavaScript' + (errors.length ? ': ' + errors.join(' | ') : ''));
   console.log(`\n✔ e2e.test.js: ${checks} pengecekan lulus`);

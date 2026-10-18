@@ -30,6 +30,33 @@
   const loaded = storage.load();
   let store = loaded.store;
   const player = () => store.players[store.currentId] || null;
+
+  /* ---------- Google Spreadsheet (opsional) ---------- */
+  const sheetUrl = () => String(store.settings.sheetUrl || (window.SNA_CONFIG && window.SNA_CONFIG.SHEET_API_URL) || '').trim();
+  const Sheet = SNA.Sheet.createSender({
+    getUrl: sheetUrl,
+    storage: storage.available ? (() => { try { return window.localStorage; } catch (e) { return null; } })() : null,
+    fetch: (u, o) => window.fetch(u, o)
+  });
+  // Kirim hasil misi/tes; tampilkan statusnya di layar ringkasan
+  function report(info) {
+    const p = player();
+    if (!p || !window.fetch) return;
+    const el = $('#syncNote');
+    if (!SNA.Sheet.validUrl(sheetUrl())) { if (el) el.textContent = '💾 Tersimpan di perangkat ini.'; return; }
+    if (el) el.textContent = '☁️ Mengirim ke spreadsheet guru…';
+    Sheet.send(SNA.Sheet.buildRecord(p, store.settings, info)).then(st => {
+      const e2 = $('#syncNote');
+      if (!e2) return;
+      e2.textContent = st === 'sheet' ? '✅ Tersimpan di perangkat & spreadsheet guru.'
+        : '💾 Tersimpan di perangkat. Akan dikirim ke spreadsheet saat internet tersambung.';
+    }).catch(() => { /* abaikan */ });
+  }
+  async function flushSheet() {
+    const n = await Sheet.flush().catch(() => 0);
+    if (n) toast(`☁️ ${n} hasil tertunda berhasil dikirim ke spreadsheet.`);
+  }
+  window.addEventListener('online', flushSheet);
   function save() {
     if (!storage.available) return;
     if (!storage.save(store)) toast('Progres belum bisa disimpan. Memori perangkat mungkin penuh.');
@@ -1010,7 +1037,8 @@
         ${session.kind === 'mission' ? '<button class="btn btn-soft" type="button" data-again>↻ Main lagi</button>' : ''}
         ${nextAvail && !(rec && rec.area === session.area && rec.step === session.step + 1) ? '<button class="btn btn-soft" type="button" data-next-step>Misi berikutnya ▶</button>' : ''}
         <button class="btn btn-ghost" type="button" data-go="map">🗺️ Ke peta</button>
-      </div>`;
+      </div>
+      <p class="sync-note" id="syncNote" role="status"></p>`;
     const recB = $('[data-rec]', sec);
     if (recB) recB.addEventListener('click', () => renderIntro(rec.area, rec.step));
     const again = $('[data-again]', sec);
@@ -1019,6 +1047,7 @@
     if (ns) ns.addEventListener('click', () => renderIntro(session.area, session.step + 1));
     S = null;
     show('summary');
+    report({ kind: session.kind, area: session.area, step: session.step, result: r });
   }
 
   function finishDiagnostic() {
@@ -1039,10 +1068,16 @@
         <p class="muted">Misi yang lebih mudah tetap terbuka untuk dimainkan.</p>
       </div>
       ${rec ? `<div class="card rec-small"><p class="eyebrow">Misi pertamamu</p><p><b>${esc(stepLabel(rec.area, rec.step))}</b></p><button class="btn btn-primary" type="button" data-rec>Ayo mulai ▶</button></div>` : ''}
-      <div class="btn-row"><button class="btn btn-ghost" type="button" data-go="map">🗺️ Ke peta</button></div>`;
+      <div class="btn-row"><button class="btn btn-ghost" type="button" data-go="map">🗺️ Ke peta</button></div>
+      <p class="sync-note" id="syncNote" role="status"></p>`;
     const recB = $('[data-rec]', sec);
     if (recB) recB.addEventListener('click', () => renderIntro(rec.area, rec.step));
     show('summary');
+    const tot = Object.values(areas).reduce((t, x) => ({ c: t.c + x.correct, n: t.n + x.total }), { c: 0, n: 0 });
+    report({
+      kind: 'diagnostic', result: { total: tot.n, correct: tot.c, first: tot.c, wrong: tot.n - tot.c },
+      note: 'Mulai dari: ' + Object.keys(areas).map(a => `${C.AREA_BY_ID[a].name} → ${C.AREA_BY_ID[a].steps[areas[a].start].title} (${areas[a].correct}/${areas[a].total})`).join('; ')
+    });
   }
 
   function finishFinal() {
@@ -1070,10 +1105,15 @@
         <p class="muted">${esc(cmp.text)}</p>
       </div>
       ${rec ? `<div class="card rec-small"><p class="eyebrow">Saran berikutnya</p><p><b>${esc(stepLabel(rec.area, rec.step))}</b></p><button class="btn btn-primary" type="button" data-rec>Ayo lanjut ▶</button></div>` : ''}
-      <div class="btn-row"><button class="btn btn-ghost" type="button" data-go="map">🗺️ Ke peta</button></div>`;
+      <div class="btn-row"><button class="btn btn-ghost" type="button" data-go="map">🗺️ Ke peta</button></div>
+      <p class="sync-note" id="syncNote" role="status"></p>`;
     const recB = $('[data-rec]', sec);
     if (recB) recB.addEventListener('click', () => renderIntro(rec.area, rec.step));
     show('summary');
+    report({
+      kind: 'final', area, result: { total: res.total, correct: res.correct, first: res.correct, wrong: res.total - res.correct },
+      note: [shown.length ? 'Sudah ditunjukkan: ' + shown.join(', ') : '', practice.length ? 'Perlu latihan: ' + practice.join(', ') : ''].filter(Boolean).join(' | ')
+    });
   }
 
   /* ================= PROGRES BELAJAR ================= */
@@ -1245,9 +1285,24 @@
         <label class="check"><input type="checkbox" id="setRead" ${store.settings.autoRead ? 'checked' : ''}><span><b>Bacakan soal otomatis (Mode TK)</b><small>Memakai suara bawaan perangkat jika tersedia.</small></span></label>
         <label class="check"><input type="checkbox" id="setUnlock" ${store.settings.unlockAll ? 'checked' : ''}><span><b>Buka semua misi</b><small>Untuk guru yang ingin memilih misi tertentu.</small></span></label>
       </div>
+      <div class="card" id="sheetCard">
+        <h2>Google Spreadsheet (untuk guru)</h2>
+        <p class="muted">Hubungkan agar hasil belajar semua anak terkumpul di satu spreadsheet: tab <b>Riwayat</b> (setiap misi/tes) dan <b>Rekap Siswa</b> (satu baris per anak). Cara membuat URL ada di README.</p>
+        <label class="field">
+          <span class="field-label">URL Apps Script (berakhiran /exec)</span>
+          <input type="text" id="sheetUrlInput" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(store.settings.sheetUrl || '')}">
+          <small class="field-help">${window.SNA_CONFIG && SNA.Sheet.validUrl(window.SNA_CONFIG.SHEET_API_URL) && !store.settings.sheetUrl ? 'Saat ini memakai URL dari config.js.' : 'Kosongkan untuk memakai URL dari config.js (jika ada).'}</small>
+        </label>
+        <p class="sync-note" id="sheetStatus" role="status">${SNA.Sheet.validUrl(sheetUrl()) ? '✅ Terhubung.' : 'Belum terhubung.'} ${Sheet.pending() ? `⏳ ${Sheet.pending()} hasil menunggu dikirim.` : ''}</p>
+        <div class="btn-row">
+          <button class="btn btn-soft" type="button" data-sheet-save>Tes koneksi &amp; simpan</button>
+          ${Sheet.pending() && SNA.Sheet.validUrl(sheetUrl()) ? '<button class="btn btn-ghost" type="button" data-sheet-flush>Kirim yang tertunda</button>' : ''}
+        </div>
+      </div>
       <div class="card">
         <h2>Data &amp; privasi</h2>
-        <p>Data hanya disimpan di browser perangkat ini: nama panggilan, kelompok, mode, dan hasil latihan. Tidak ada iklan, tidak ada obrolan, dan tidak ada data yang dikirim ke internet.</p>
+        <p>Progres selalu disimpan di browser perangkat ini: nama panggilan, kelompok, mode, dan hasil latihan. Tidak ada iklan dan tidak ada obrolan.</p>
+        <p>${SNA.Sheet.validUrl(sheetUrl()) ? 'Google Spreadsheet <b>terhubung</b>: setiap misi dan tes yang selesai juga dikirim ke spreadsheet milik guru/sekolah (nama panggilan, kelompok, dan hasil belajar).' : 'Google Spreadsheet belum dihubungkan, jadi tidak ada data yang dikirim ke internet.'}</p>
         <p class="muted">${storage.available ? 'Penyimpanan perangkat: aktif.' : 'Penyimpanan perangkat: tidak tersedia — progres hilang saat halaman ditutup.'} Jumlah pemain: ${Object.keys(store.players).length}.</p>
         <div class="btn-row">
           ${p ? '<button class="btn btn-danger-ghost" type="button" data-reset>Reset progres pemain ini</button>' : ''}
@@ -1257,10 +1312,29 @@
     const bind = (id, key) => $(id, sec).addEventListener('change', e => { store.settings[key] = e.target.checked; save(); updateTopbar(); });
     bind('#setSound', 'sound'); bind('#setRead', 'autoRead'); bind('#setUnlock', 'unlockAll');
     const rs = $('[data-reset]', sec); if (rs) rs.addEventListener('click', resetCurrent);
+    $('[data-sheet-save]', sec).addEventListener('click', async () => {
+      const url = $('#sheetUrlInput', sec).value.trim();
+      const st = $('#sheetStatus', sec);
+      if (!url) {
+        store.settings.sheetUrl = ''; save();
+        st.textContent = SNA.Sheet.validUrl(sheetUrl()) ? 'URL dikosongkan. Memakai URL dari config.js.' : 'URL dihapus. Progres hanya disimpan di perangkat.';
+        return;
+      }
+      st.textContent = '⏳ Mengetes koneksi…';
+      const r = await Sheet.test(url);
+      if (!r.ok) { st.textContent = '❌ ' + r.error; return; }
+      store.settings.sheetUrl = url; save();
+      st.textContent = '✅ Terhubung dan tersimpan.';
+      toast('Spreadsheet terhubung.');
+      flushSheet();
+    });
+    const fl = $('[data-sheet-flush]', sec);
+    if (fl) fl.addEventListener('click', async () => { await flushSheet(); renderGuide(false); });
     $('[data-wipe]', sec).addEventListener('click', async () => {
       const okWipe = await confirmBox({ title: 'Hapus semua data?', text: 'Semua pemain dan progres di perangkat ini akan dihapus dan tidak bisa dikembalikan.', ok: 'Ya, hapus semua', danger: true });
       if (!okWipe) return;
-      store = P.defaultStore(); storage.clear(); save();
+      const keepUrl = store.settings.sheetUrl;
+      store = P.defaultStore(); store.settings.sheetUrl = keepUrl; storage.clear(); save();
       toast('Semua data sudah dihapus.');
       renderHome(); show('home');
     });
@@ -1299,6 +1373,7 @@
 
   /* ---------- Mulai ---------- */
   Speech.init();
+  flushSheet();
   showStorageNote();
   renderHome();
   show('home', { push: false, noFocus: true });
