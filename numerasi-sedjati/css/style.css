@@ -453,6 +453,8 @@ body.mode-tk .sz-l .obj-e { font-size: 3rem; }
 .result-list { list-style: none; padding: 0; margin: 12px auto 0; display: grid; gap: 8px; max-width: 420px; text-align: left; }
 .result-list li { background: var(--cream); border-radius: var(--radius-s); padding: 10px 14px; }
 .rec-small .btn { width: 100%; }
+.sync-note { text-align: center; color: var(--muted); font-weight: 700; font-size: .92rem; min-height: 1.4em; margin: 10px 0 0; }
+#sheetCard .sync-note { text-align: left; }
 .break-card { display: flex; gap: 12px; align-items: center; background: var(--blue-l); border-color: #BAE6FD; }
 .break-card > span { font-family: var(--font-emoji); font-size: 2.2rem; }
 .break-card p { margin: 0; }

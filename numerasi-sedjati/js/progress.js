@@ -41,7 +41,7 @@
     return clean || 'Tamu';
   }
 
-  function defaultSettings() { return { sound: true, autoRead: true, unlockAll: false }; }
+  function defaultSettings() { return { sound: true, autoRead: true, unlockAll: false, sheetUrl: '' }; }
   function defaultStore() { return { version: VERSION, currentId: null, players: {}, settings: defaultSettings() }; }
 
   function emptyOps() {
@@ -155,7 +155,11 @@
   function sanitizeStore(raw) {
     const s = defaultStore();
     if (!isObj(raw)) return s;
-    if (isObj(raw.settings)) Object.keys(s.settings).forEach(k => { if (typeof raw.settings[k] === 'boolean') s.settings[k] = raw.settings[k]; });
+    if (isObj(raw.settings)) {
+      Object.keys(s.settings).forEach(k => { if (typeof s.settings[k] === 'boolean' && typeof raw.settings[k] === 'boolean') s.settings[k] = raw.settings[k]; });
+      // URL Apps Script (opsional) — hanya alamat script.google.com yang diterima
+      if (typeof raw.settings.sheetUrl === 'string' && /^https:\/\/script\.google(usercontent)?\.com\/[^\s"'<>]{1,500}$/.test(raw.settings.sheetUrl.trim())) s.settings.sheetUrl = raw.settings.sheetUrl.trim();
+    }
     if (isObj(raw.players)) {
       Object.keys(raw.players).slice(0, MAX_PLAYERS).forEach(id => {
         if (!/^p[a-z0-9]{1,40}$/i.test(id)) return;
