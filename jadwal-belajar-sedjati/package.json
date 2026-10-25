@@ -1,0 +1,13 @@
+{
+  "name": "jadwal-belajar-sedjati",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dashboard Jadwal Belajar Taman Belajar Sedjati (Google Apps Script + Google Sheets + WhatsApp).",
+  "scripts": {
+    "test": "node tests/backend.test.js",
+    "test:ui": "node tests/ui.test.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
+}
