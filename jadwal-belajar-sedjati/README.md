@@ -23,6 +23,7 @@ Admin cukup mengubah Google Sheets; website langsung membaca data terbaru tanpa 
 | `apps-script/Scripts.html` | JavaScript frontend |
 | `apps-script/appsscript.json` | Manifest: zona waktu `Asia/Jakarta`, izin akses minimal, pengaturan web app |
 | `tests/` | Tes otomatis di komputer (tidak perlu disalin ke Apps Script) |
+| `tools/build-preview.js` | Membuat satu file HTML pratinjau (tanpa akun Google) dari kode yang sama, dengan data demo dan simulasi Sheets. Tidak perlu disalin ke Apps Script. |
 
 ---
 
