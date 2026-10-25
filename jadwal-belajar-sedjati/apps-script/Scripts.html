@@ -1,0 +1,510 @@
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+   * Data awal & state. Tidak ada data jadwal yang ditanam di sini:
+   * semua jadwal datang dari Google Sheets lewat google.script.run.
+   * Token sesi hanya disimpan di memori (hilang saat halaman ditutup).
+   * ------------------------------------------------------------------ */
+  var BOOT = window.__BOOT__ || {};
+  var HARI = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+  var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  var TIMEOUT_MS = 30000;
+  var state = { token: null, data: null, view: 'list', current: null, lastFocus: null };
+
+  // Ikon SVG ringan bergaya Lucide (tanpa CDN).
+  var ICONS = {
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 0 0-16 0"/>',
+    key: '<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>',
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    eyeOff: '<path d="M9.9 4.2A10 10 0 0 1 12 4c6.5 0 10 8 10 8a17 17 0 0 1-2.2 3.2"/><path d="M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/>',
+    shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+    info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+    refresh: '<path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/>',
+    logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+    list: '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>',
+    calendar: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+    calendarDays: '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    book: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    message: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22z"/>',
+    wifiOff: '<path d="M12 20h.01"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.7"/><path d="M19 12.9a10 10 0 0 0-2.1-1.5"/><path d="M2 8.8a15 15 0 0 1 4.2-2.6"/><path d="M22 8.8A15 15 0 0 0 11 5.1"/><path d="m2 2 20 20"/>'
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function each(list, fn) { Array.prototype.forEach.call(list, fn); }
+  function icon(name) {
+    return '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONS[name] || '') + '</svg>';
+  }
+  function hydrateIcons(root) {
+    each((root || document).querySelectorAll('[data-icon]'), function (el) {
+      if (el.getAttribute('data-done') === el.getAttribute('data-icon')) return;
+      el.innerHTML = icon(el.getAttribute('data-icon'));
+      el.setAttribute('data-done', el.getAttribute('data-icon'));
+    });
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  /* ------------------------------------------------------------------
+   * Pemanggil server dengan batas waktu dan pesan ramah.
+   * ------------------------------------------------------------------ */
+  var MSG = {
+    NETWORK: 'Tidak dapat terhubung ke server jadwal. Periksa koneksi internet Anda, lalu coba lagi.',
+    TIMEOUT: 'Server jadwal terlalu lama merespons. Mohon coba lagi sebentar lagi.',
+    SERVER_ERROR: 'Maaf, terjadi gangguan saat memproses permintaan. Silakan coba beberapa saat lagi.',
+    NOT_AVAILABLE: 'Halaman ini perlu dibuka melalui tautan resmi dari Taman Belajar Sedjati.'
+  };
+
+  function callServer(fn, args, onOk, onErr) {
+    if (!(window.google && google.script && google.script.run)) {
+      onErr({ code: 'NOT_AVAILABLE', message: MSG.NOT_AVAILABLE });
+      return;
+    }
+    var settled = false;
+    var timer = setTimeout(function () {
+      if (settled) return;
+      settled = true;
+      onErr({ code: 'TIMEOUT', message: MSG.TIMEOUT });
+    }, TIMEOUT_MS);
+    var runner = google.script.run
+      .withSuccessHandler(function (res) {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (res && res.ok) onOk(res);
+        else onErr(res && res.message ? res : { code: 'SERVER_ERROR', message: MSG.SERVER_ERROR });
+      })
+      .withFailureHandler(function () {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        onErr({ code: 'NETWORK', message: MSG.NETWORK });
+      });
+    runner[fn].apply(runner, args);
+  }
+
+  /* ------------------------------------------------------------------
+   * Tampilan umum
+   * ------------------------------------------------------------------ */
+  function setBusy(btn, busy, label) {
+    var lab = btn.querySelector('.btn-label');
+    var ico = btn.querySelector('[data-icon]');
+    if (busy) {
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      if (lab) { lab.setAttribute('data-orig', lab.textContent); lab.textContent = label; }
+      if (ico) { ico.style.display = 'none'; ico.insertAdjacentHTML('afterend', '<span class="spinner" aria-hidden="true"></span>'); }
+    } else {
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
+      if (lab && lab.getAttribute('data-orig')) lab.textContent = lab.getAttribute('data-orig');
+      if (ico) ico.style.display = '';
+      var sp = btn.querySelector('.spinner');
+      if (sp) sp.parentNode.removeChild(sp);
+    }
+  }
+
+  /** kind: error | warn | info | ok */
+  function showAlert(el, message, kind, action) {
+    var iconName = kind === 'ok' ? 'check' : kind === 'info' ? 'info' : kind === 'error' && action === 'offline' ? 'wifiOff' : 'alert';
+    el.className = 'alert' + (kind && kind !== 'error' ? ' alert-' + kind : '');
+    el.innerHTML = icon(iconName) + '<span>' + esc(message) + '</span>' +
+      (action && action.label ? '<button type="button" class="alert-action">' + esc(action.label) + '</button>' : '');
+    if (action && action.onClick) el.querySelector('.alert-action').addEventListener('click', action.onClick);
+    el.hidden = false;
+  }
+  function hideAlert(el) { el.hidden = true; el.innerHTML = ''; }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 3500);
+  }
+
+  function applyBranding() {
+    var name = BOOT.nama_lembaga || 'Taman Belajar Sedjati';
+    $('brandName').textContent = name;
+    $('footerName').textContent = name;
+    if (BOOT.info_header) $('infoHeader').textContent = BOOT.info_header;
+    if (BOOT.logo_url && /^https:\/\//i.test(BOOT.logo_url)) {
+      var img = new Image();
+      img.alt = 'Logo ' + name;
+      img.onload = function () { var box = $('logo'); box.innerHTML = ''; box.appendChild(img); };
+      img.src = BOOT.logo_url; // bila gagal dimuat, logo teks "TBS" tetap tampil
+    }
+  }
+
+  /* ------------------------------------------------------------------
+   * Tanggal (berdasarkan "today" dari server, zona Asia/Jakarta)
+   * ------------------------------------------------------------------ */
+  function isoToUtc(iso) { var p = iso.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); }
+  function utcToIso(d) {
+    return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2);
+  }
+  function addDays(iso, n) { var d = isoToUtc(iso); d.setUTCDate(d.getUTCDate() + n); return utcToIso(d); }
+  function dow(iso) { return isoToUtc(iso).getUTCDay() || 7; }
+  function labelTanggal(iso) {
+    var d = isoToUtc(iso);
+    return HARI[dow(iso)] + ', ' + d.getUTCDate() + ' ' + BULAN[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
+
+  /** Tanggal pertemuan berikutnya yang sesuai hari jadwal dan masa berlakunya. */
+  function upcomingDates(s, today, windowDays) {
+    var start = s.tanggalMulai && s.tanggalMulai > today ? s.tanggalMulai : today;
+    var end = addDays(today, windowDays);
+    if (s.tanggalSelesai && s.tanggalSelesai < end) end = s.tanggalSelesai;
+    var out = [];
+    for (var iso = start; iso <= end && out.length < 24; iso = addDays(iso, 1)) {
+      if (s.days.indexOf(dow(iso)) !== -1) out.push(iso);
+    }
+    return out;
+  }
+
+  /* ------------------------------------------------------------------
+   * Verifikasi orang tua
+   * ------------------------------------------------------------------ */
+  function onLogin(ev) {
+    ev.preventDefault();
+    var msg = $('loginMsg');
+    var nama = $('inNama').value.replace(/\s+/g, ' ').trim();
+    var kode = $('inKode').value.replace(/[\s\-.]/g, '');
+    $('inNama').parentNode.classList.toggle('invalid', nama.length < 2);
+    $('inKode').parentNode.classList.toggle('invalid', kode.length < 4);
+    if (nama.length < 2 || kode.length < 4) {
+      showAlert(msg, nama.length < 2 ? 'Mohon isi nama anak terlebih dahulu.' : 'Mohon isi kode akses dari admin (minimal 4 karakter).', 'warn');
+      (nama.length < 2 ? $('inNama') : $('inKode')).focus();
+      return;
+    }
+    hideAlert(msg);
+    var btn = $('btnLogin');
+    setBusy(btn, true, 'Memeriksa data...');
+    callServer('verifyStudentAccess', [nama, kode], function (res) {
+      setBusy(btn, false);
+      state.token = res.token;
+      $('inKode').value = '';
+      showDashboard(res.data);
+    }, function (err) {
+      setBusy(btn, false);
+      var kind = err.code === 'INACTIVE' || err.code === 'LOCKED' ? 'warn' : 'error';
+      showAlert(msg, err.message, kind, err.code === 'NETWORK' || err.code === 'TIMEOUT' ? 'offline' : null);
+      if (err.code === 'WRONG_CODE' || err.code === 'NO_MATCH') $('inKode').select();
+    });
+  }
+
+  function logout(message) {
+    state.token = null;
+    state.data = null;
+    closeModal();
+    // Hapus jadwal dari layar agar tidak terlihat pengguna berikutnya di HP yang sama.
+    ['scheduleList', 'scheduleDays', 'izAlasan', 'izTanggal', 'donePreview', 'doneCode', 'izNama', 'izProgram', 'izJam'].forEach(function (id) {
+      $(id).innerHTML = '';
+    });
+    $('childName').textContent = '-';
+    $('programCount').textContent = '';
+    $('loadedInfo').textContent = '';
+    $('waLink').setAttribute('href', '#');
+    $('viewDash').hidden = true;
+    $('viewLogin').hidden = false;
+    $('inKode').value = '';
+    hideAlert($('dashMsg'));
+    if (message) showAlert($('loginMsg'), message, 'warn'); else hideAlert($('loginMsg'));
+    window.scrollTo(0, 0);
+    $('inNama').focus();
+  }
+
+  /* ------------------------------------------------------------------
+   * Dashboard
+   * ------------------------------------------------------------------ */
+  function showDashboard(data) {
+    state.data = data;
+    $('viewLogin').hidden = true;
+    $('viewDash').hidden = false;
+    hideAlert($('dashMsg'));
+    render();
+    window.scrollTo(0, 0);
+  }
+
+  function render() {
+    var d = state.data;
+    $('childName').textContent = d.student.nama;
+    $('avatar').textContent = (d.student.nama.charAt(0) || '?').toUpperCase();
+    $('demoBanner').hidden = !d.isDemo;
+    var n = d.schedules.length;
+    var programs = {};
+    d.schedules.forEach(function (s) { programs[s.program] = true; });
+    var p = Object.keys(programs).length;
+    $('programCount').textContent = n ? p + ' program · ' + n + ' jadwal' : '';
+    $('loadedInfo').textContent = 'Data dimuat pukul ' + d.loadedAt + ' WIB · Hari ini ' + d.todayLabel;
+    renderList();
+    renderDays();
+    setView(state.view);
+  }
+
+  function emptyState() {
+    return '<div class="card empty">' + icon('calendar') +
+      '<h3>Jadwal belum tersedia</h3><p class="muted">Admin sedang menyiapkan jadwal belajar. ' +
+      'Silakan tekan "Perbarui Jadwal" nanti atau hubungi admin Taman Belajar Sedjati.</p></div>';
+  }
+
+  function validityText(s) {
+    if (s.status === 'Akan dimulai') return 'Mulai berlaku ' + s.tanggalMulaiLabel;
+    if (s.tanggalSelesaiLabel) return 'Berlaku sampai ' + s.tanggalSelesaiLabel;
+    return '';
+  }
+
+  function renderList() {
+    var box = $('scheduleList');
+    var list = state.data.schedules;
+    if (!list.length) { box.innerHTML = emptyState(); return; }
+    box.innerHTML = '<div class="sched-grid">' + list.map(function (s) {
+      var soon = s.status !== 'Aktif';
+      var valid = validityText(s);
+      return '<article class="sched' + (soon ? ' soon' : '') + '">' +
+        '<div class="sched-head"><div class="sched-title"><div class="bubble">' + icon('book') + '</div>' +
+        '<h3>' + esc(s.program) + '</h3></div>' +
+        '<span class="badge ' + (soon ? 'badge-soon' : 'badge-ok') + '">' + esc(s.status) + '</span></div>' +
+        '<div class="sched-rows">' +
+        '<div class="sched-row">' + icon('calendar') + '<span>Hari: <strong>' + esc(s.hariText) + '</strong></span></div>' +
+        '<div class="sched-row">' + icon('clock') + '<span>Jam: <strong>' + esc(s.jamMulai) + '–' + esc(s.jamSelesai) + '</strong> WIB</span></div>' +
+        '<div class="sched-row">' + icon('user') + '<span>Tutor: <strong>' + esc(s.tutor) + '</strong></span></div>' +
+        '</div>' +
+        (valid ? '<p class="sched-valid">' + esc(valid) + '</p>' : '') +
+        '<button type="button" class="btn btn-izin" data-izin="' + esc(s.scheduleId) + '">' + icon('message') +
+        '<span>Izin Tidak Masuk</span></button>' +
+        '</article>';
+    }).join('') + '</div>';
+  }
+
+  function renderDays() {
+    var box = $('scheduleDays');
+    var d = state.data;
+    if (!d.schedules.length) { box.innerHTML = emptyState(); return; }
+    var todayDow = dow(d.today);
+    var html = '<div class="days-grid">';
+    for (var day = 1; day <= 7; day++) {
+      var items = d.schedules.filter(function (s) { return s.days.indexOf(day) !== -1; })
+        .sort(function (a, b) { return a.startMinutes - b.startMinutes; });
+      html += '<section class="day' + (day === todayDow ? ' today' : '') + '" aria-label="' + HARI[day] + '">' +
+        '<div class="day-head"><span>' + HARI[day] + '</span>' + (day === todayDow ? '<span class="tag">Hari ini</span>' : '') + '</div>';
+      if (!items.length) {
+        html += '<p class="day-empty">Tidak ada jadwal.</p>';
+      } else {
+        items.forEach(function (s) {
+          html += '<div class="day-item"><span class="day-time">' + esc(s.jamMulai) + '–' + esc(s.jamSelesai) + '</span>' +
+            '<strong>' + esc(s.program) + (s.status !== 'Aktif' ? ' <span class="badge badge-soon">' + esc(s.status) + '</span>' : '') + '</strong>' +
+            '<span class="small muted">Tutor: ' + esc(s.tutor) + '</span>' +
+            '<button type="button" class="link-izin" data-izin="' + esc(s.scheduleId) + '">' + icon('message') + 'Izin tidak masuk</button>' +
+            '</div>';
+        });
+      }
+      html += '</section>';
+    }
+    box.innerHTML = html + '</div>';
+  }
+
+  function setView(view) {
+    state.view = view;
+    var list = view === 'list';
+    $('tabList').setAttribute('aria-selected', String(list));
+    $('tabDay').setAttribute('aria-selected', String(!list));
+    $('scheduleList').hidden = !list;
+    $('scheduleDays').hidden = list;
+  }
+
+  function refresh() {
+    if (!state.token) return logout();
+    var btn = $('btnRefresh');
+    setBusy(btn, true, 'Memuat...');
+    hideAlert($('dashMsg'));
+    callServer('getStudentSchedule', [state.token], function (res) {
+      setBusy(btn, false);
+      state.data = res.data;
+      render();
+      toast('Jadwal sudah diperbarui.');
+    }, function (err) {
+      setBusy(btn, false);
+      if (err.code === 'SESSION_EXPIRED' || err.code === 'INACTIVE') return logout(err.message);
+      showAlert($('dashMsg'), err.message + ' Jadwal yang tampil mungkin belum yang terbaru.', 'error',
+        { label: 'Coba lagi', onClick: refresh });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+   * Modal izin
+   * ------------------------------------------------------------------ */
+  function findSchedule(id) {
+    var found = null;
+    state.data.schedules.forEach(function (s) { if (s.scheduleId === id) found = s; });
+    return found;
+  }
+
+  function openModal(id) {
+    var s = findSchedule(id);
+    if (!s) return;
+    state.current = s;
+    state.lastFocus = document.activeElement;
+    var d = state.data;
+    $('izNama').textContent = d.student.nama;
+    $('izProgram').textContent = s.program;
+    $('izJam').textContent = s.hariText + ', ' + s.jamMulai + '–' + s.jamSelesai + ' · ' + s.tutor;
+
+    var dates = upcomingDates(s, d.today, d.leaveWindowDays);
+    var sel = $('izTanggal');
+    sel.innerHTML = '<option value="">' + (dates.length ? 'Pilih tanggal pertemuan' : 'Tidak ada pertemuan terdekat') + '</option>' +
+      dates.map(function (iso) {
+        return '<option value="' + iso + '">' + esc(labelTanggal(iso)) + (iso === d.today ? ' (hari ini)' : '') + '</option>';
+      }).join('');
+    sel.disabled = !dates.length;
+    $('btnIzin').disabled = !dates.length;
+    $('izTanggalHint').textContent = dates.length
+      ? 'Hanya tanggal sesuai jadwal ' + s.hariText + ' dalam ' + d.leaveWindowDays + ' hari ke depan.'
+      : 'Belum ada pertemuan dalam ' + d.leaveWindowDays + ' hari ke depan. Silakan hubungi admin langsung.';
+
+    $('izAlasan').innerHTML = d.alasan.map(function (a, i) {
+      return '<label class="chip"><input type="radio" name="alasan" value="' + esc(a) + '" id="al' + i + '"><span>' + esc(a) + '</span></label>';
+    }).join('');
+    $('izCatatan').value = '';
+    $('izCount').textContent = '0';
+    [sel.parentNode, $('izAlasan'), $('izCatatan')].forEach(function (el) { el.classList.remove('invalid'); });
+    hideAlert($('izinMsg'));
+    $('izinForm').hidden = false;
+    $('izinDone').hidden = true;
+    $('modal').hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { (sel.disabled ? $('izCatatan') : sel).focus(); }, 50);
+  }
+
+  function closeModal() {
+    if ($('modal').hidden) return;
+    $('modal').hidden = true;
+    document.body.style.overflow = '';
+    state.current = null;
+    if (state.lastFocus && state.lastFocus.focus && document.body.contains(state.lastFocus)) state.lastFocus.focus();
+  }
+
+  function onIzinSubmit(ev) {
+    ev.preventDefault();
+    var s = state.current;
+    if (!s) return;
+    var tanggal = $('izTanggal').value;
+    var checked = document.querySelector('input[name="alasan"]:checked');
+    var alasan = checked ? checked.value : '';
+    var catatan = $('izCatatan').value.replace(/\s+/g, ' ').trim();
+
+    var missing = [];
+    $('izTanggal').parentNode.classList.toggle('invalid', !tanggal);
+    $('izAlasan').classList.toggle('invalid', !alasan);
+    $('izCatatan').classList.toggle('invalid', alasan === 'Lainnya' && !catatan);
+    if (!tanggal) missing.push('pilih tanggal pertemuan');
+    if (!alasan) missing.push('pilih alasan izin');
+    if (alasan === 'Lainnya' && !catatan) missing.push('tuliskan keterangan di catatan');
+    if (catatan.length > 300) missing.push('persingkat catatan (maks. 300 karakter)');
+    if (missing.length) {
+      showAlert($('izinMsg'), 'Formulir belum lengkap: mohon ' + missing.join(', ') + '.', 'warn');
+      return;
+    }
+    hideAlert($('izinMsg'));
+    var btn = $('btnIzin');
+    setBusy(btn, true, 'Menyiapkan pesan...');
+    callServer('logLeaveRequest', [state.token, { scheduleId: s.scheduleId, tanggal: tanggal, alasan: alasan, catatan: catatan }],
+      function (res) {
+        setBusy(btn, false);
+        showDone(res, s);
+      },
+      function (err) {
+        setBusy(btn, false);
+        if (err.code === 'SESSION_EXPIRED' || err.code === 'INACTIVE') return logout(err.message);
+        showAlert($('izinMsg'), err.code === 'INVALID_INPUT' || err.code === 'SCHEDULE_NOT_FOUND' || err.code === 'BUSY' || err.code === 'CONFIG_ERROR'
+          ? err.message
+          : 'Gagal memproses permintaan izin. ' + err.message, 'error');
+      });
+  }
+
+  function showDone(res, s) {
+    if (!/^https:\/\/wa\.me\/\d+\?text=/.test(res.waUrl || '')) {
+      showAlert($('izinMsg'), MSG.SERVER_ERROR, 'error');
+      return;
+    }
+    $('izinForm').hidden = true;
+    $('izinDone').hidden = false;
+    $('doneText').textContent = 'Pesan izin ' + s.program + ' untuk ' + res.tanggalLabel + ' sudah disiapkan. Tekan tombol di bawah untuk membuka WhatsApp admin.';
+    var code = $('doneCode');
+    if (res.izinId) {
+      code.innerHTML = 'Kode pengajuan: <code>' + esc(res.izinId) + '</code><br><span class="small muted">' +
+        (res.duplicate ? 'Pengajuan untuk tanggal ini sudah pernah dibuat. ' : '') +
+        'Status: menunggu konfirmasi admin.</span>';
+      code.hidden = false;
+    } else {
+      code.hidden = true;
+    }
+    $('donePreview').textContent = res.message;
+    $('waLink').href = res.waUrl;
+    hydrateIcons($('izinDone'));
+    setTimeout(function () { $('waLink').focus(); }, 50);
+  }
+
+  /* ------------------------------------------------------------------
+   * Event
+   * ------------------------------------------------------------------ */
+  function bind() {
+    $('loginForm').addEventListener('submit', onLogin);
+    $('inNama').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); $('inKode').focus(); }
+    });
+    ['inNama', 'inKode'].forEach(function (id) {
+      $(id).addEventListener('input', function () { $(id).parentNode.classList.remove('invalid'); });
+    });
+    $('btnShowCode').addEventListener('click', function () {
+      var input = $('inKode');
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      this.setAttribute('aria-pressed', String(show));
+      this.setAttribute('aria-label', show ? 'Sembunyikan kode' : 'Tampilkan kode');
+      var ic = this.querySelector('[data-icon]');
+      ic.setAttribute('data-icon', show ? 'eyeOff' : 'eye');
+      hydrateIcons(this);
+    });
+
+    $('btnRefresh').addEventListener('click', refresh);
+    $('btnLogout').addEventListener('click', function () { logout(); });
+    $('tabList').addEventListener('click', function () { setView('list'); });
+    $('tabDay').addEventListener('click', function () { setView('day'); });
+    $('tabList').addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { setView('day'); $('tabDay').focus(); } });
+    $('tabDay').addEventListener('keydown', function (e) { if (e.key === 'ArrowLeft') { setView('list'); $('tabList').focus(); } });
+
+    $('viewDash').addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('[data-izin]') : null;
+      if (btn) openModal(btn.getAttribute('data-izin'));
+    });
+
+    $('izinForm').addEventListener('submit', onIzinSubmit);
+    $('izCatatan').addEventListener('input', function () {
+      $('izCount').textContent = String(this.value.length);
+      this.classList.remove('invalid');
+    });
+    $('izTanggal').addEventListener('change', function () { this.parentNode.classList.remove('invalid'); });
+    $('izAlasan').addEventListener('change', function () { this.classList.remove('invalid'); });
+    each(document.querySelectorAll('[data-close]'), function (el) { el.addEventListener('click', closeModal); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+    $('waLink').addEventListener('click', function () {
+      toast('Jangan lupa tekan tombol Kirim di WhatsApp.');
+    });
+  }
+
+  applyBranding();
+  hydrateIcons();
+  bind();
+})();
+</script>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="theme-color" content="#15803D">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <?!= include('Styles'); ?>
+</head>
+<body>
+  <a class="skip" href="#main">Langsung ke isi</a>
+
+  <header class="hero">
+    <div class="wrap hero-inner">
+      <div class="brand">
+        <!-- AREA LOGO: isi "logo_url" di sheet Pengaturan untuk memakai logo resmi. -->
+        <div class="logo" id="logo" aria-hidden="true"><span>TBS</span></div>
+        <p class="brand-name" id="brandName">Taman Belajar Sedjati</p>
+      </div>
+      <h1>Jadwal Belajar Anak</h1>
+      <p class="subtitle">Pantau jadwal belajar si kecil dengan mudah.</p>
+      <p class="info-pill"><span data-icon="info"></span><span id="infoHeader">Jadwal diperbarui oleh admin.</span></p>
+    </div>
+  </header>
+
+  <main id="main" class="wrap">
+    <!-- ============ VERIFIKASI ORANG TUA ============ -->
+    <section id="viewLogin" class="card login-card" aria-labelledby="loginTitle">
+      <div class="card-icon"><span data-icon="search"></span></div>
+      <h2 id="loginTitle">Cari Jadwal Anak</h2>
+      <p class="muted">Masukkan nama anak dan kode akses yang diberikan admin.</p>
+
+      <form id="loginForm" novalidate>
+        <label for="inNama">Nama anak</label>
+        <div class="field">
+          <span data-icon="user"></span>
+          <input id="inNama" name="nama" type="text" placeholder="Cari nama anak..." autocomplete="off"
+                 maxlength="100" enterkeyhint="next" required>
+        </div>
+
+        <label for="inKode">Kode akses</label>
+        <div class="field">
+          <span data-icon="key"></span>
+          <input id="inKode" name="kode" type="password" placeholder="Contoh: K7M2QX" autocomplete="off"
+                 autocapitalize="characters" spellcheck="false" maxlength="32" enterkeyhint="go" required>
+          <button type="button" class="field-btn" id="btnShowCode" aria-label="Tampilkan kode" aria-pressed="false">
+            <span data-icon="eye"></span>
+          </button>
+        </div>
+        <p class="hint">Huruf besar atau kecil tidak berpengaruh.</p>
+
+        <div id="loginMsg" class="alert" role="alert" hidden></div>
+
+        <button class="btn btn-primary btn-block" id="btnLogin" type="submit">
+          <span data-icon="search"></span><span class="btn-label">Lihat Jadwal</span>
+        </button>
+      </form>
+
+      <p class="privacy">
+        <span data-icon="shield"></span>
+        <span>Kode akses bersifat rahasia — jangan dibagikan. Belum punya kode? Hubungi admin Taman Belajar Sedjati.</span>
+      </p>
+    </section>
+
+    <!-- ============ DASHBOARD JADWAL ============ -->
+    <section id="viewDash" hidden aria-live="polite">
+      <div id="demoBanner" class="demo-banner" hidden>
+        <span data-icon="alert"></span>
+        <span><strong>DATA DEMO.</strong> Nama dan jadwal ini hanya contoh untuk uji coba, bukan jadwal sebenarnya.</span>
+      </div>
+
+      <div class="card profile">
+        <div class="avatar" id="avatar" aria-hidden="true">?</div>
+        <div class="profile-info">
+          <p class="eyebrow">Jadwal untuk</p>
+          <h2 id="childName">-</h2>
+          <p class="profile-meta">
+            <span class="badge badge-ok"><span data-icon="check"></span>Murid aktif</span>
+            <span id="programCount" class="muted small"></span>
+          </p>
+        </div>
+        <div class="profile-actions">
+          <button id="btnRefresh" type="button" class="btn btn-soft">
+            <span data-icon="refresh"></span><span class="btn-label">Perbarui Jadwal</span>
+          </button>
+          <button id="btnLogout" type="button" class="btn btn-ghost">
+            <span data-icon="logout"></span><span>Keluar</span>
+          </button>
+        </div>
+        <p class="loaded-info small muted" id="loadedInfo"></p>
+      </div>
+
+      <div id="dashMsg" class="alert" role="alert" hidden></div>
+
+      <div class="tabs" role="tablist" aria-label="Pilihan tampilan jadwal">
+        <button type="button" role="tab" id="tabList" aria-selected="true" aria-controls="scheduleList">
+          <span data-icon="list"></span>Daftar Jadwal
+        </button>
+        <button type="button" role="tab" id="tabDay" aria-selected="false" aria-controls="scheduleDays">
+          <span data-icon="calendarDays"></span>Per Hari
+        </button>
+      </div>
+
+      <div id="scheduleList" role="tabpanel" aria-labelledby="tabList"></div>
+      <div id="scheduleDays" role="tabpanel" aria-labelledby="tabDay" hidden></div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <p><strong>Privasi:</strong> website ini hanya menampilkan jadwal anak yang kode aksesnya Anda masukkan.
+      Kami tidak menampilkan nomor telepon, alamat, atau data pembayaran. Data pengajuan izin hanya dipakai
+      admin untuk mencatat kehadiran dan dihapus berkala.</p>
+    <p class="muted">&copy; <span id="footerName">Taman Belajar Sedjati</span></p>
+  </footer>
+
+  <!-- ============ MODAL IZIN ============ -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h3 id="modalTitle">Izin Tidak Masuk</h3>
+        <button type="button" class="icon-btn" data-close aria-label="Tutup"><span data-icon="x"></span></button>
+      </div>
+
+      <form id="izinForm" novalidate>
+        <div class="summary">
+          <div><span class="summary-label">Nama anak</span><span id="izNama" class="summary-value"></span></div>
+          <div><span class="summary-label">Program</span><span id="izProgram" class="summary-value"></span></div>
+          <div><span class="summary-label">Jam &amp; tutor</span><span id="izJam" class="summary-value"></span></div>
+        </div>
+
+        <label for="izTanggal">Hari dan tanggal pertemuan</label>
+        <div class="field">
+          <span data-icon="calendar"></span>
+          <select id="izTanggal" required></select>
+        </div>
+        <p class="hint" id="izTanggalHint"></p>
+
+        <fieldset class="reasons">
+          <legend>Alasan izin</legend>
+          <div id="izAlasan" class="chips"></div>
+        </fieldset>
+
+        <label for="izCatatan">Catatan tambahan <span class="muted">(opsional)</span></label>
+        <textarea id="izCatatan" rows="3" maxlength="300" placeholder="Contoh: Sedang demam."></textarea>
+        <p class="hint right"><span id="izCount">0</span>/300</p>
+
+        <div id="izinMsg" class="alert" role="alert" hidden></div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close>Batal</button>
+          <button type="submit" class="btn btn-primary" id="btnIzin">
+            <span data-icon="message"></span><span class="btn-label">Lanjutkan ke WhatsApp</span>
+          </button>
+        </div>
+      </form>
+
+      <div id="izinDone" hidden>
+        <div class="done-icon"><span data-icon="message"></span></div>
+        <h4 class="center">WhatsApp siap dibuka</h4>
+        <p class="center muted" id="doneText"></p>
+        <p class="center" id="doneCode" hidden></p>
+        <details class="preview">
+          <summary>Lihat isi pesan</summary>
+          <pre id="donePreview"></pre>
+        </details>
+        <a id="waLink" class="btn btn-wa btn-block" href="#" target="_blank" rel="noopener noreferrer">
+          <span data-icon="message"></span><span>Buka WhatsApp Admin</span>
+        </a>
+        <div class="alert alert-info" id="sendNote">
+          <span data-icon="info"></span>
+          <span>Setelah WhatsApp terbuka, <strong>tekan tombol Kirim</strong> di WhatsApp. Pengajuan baru sampai ke admin
+            setelah pesan terkirim, dan izin dianggap tercatat setelah admin membalas.</span>
+        </div>
+        <button type="button" class="btn btn-ghost btn-block" data-close>Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script>window.__BOOT__ = <?!= bootJson ?>;</script>
+  <?!= include('Scripts'); ?>
+</body>
+</html>
